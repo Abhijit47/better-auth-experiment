@@ -51,20 +51,21 @@ export function SignInCard() {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     startTransition(async () => {
-      console.log(values);
-      const { data, error } = await authClient.emailOtp.sendVerificationOtp({
-        email: 'user@example.com', // required
-        type: 'sign-in', // required
-        fetchOptions: {},
-      });
+      // console.log(values);
+
       await authClient.signIn.email({
         email: values.email,
         password: values.password,
         callbackURL: '/',
         rememberMe: true,
         fetchOptions: {
+          // eslint-disable-next-line
+          onRequest: (ctx) => {
+            //show loading
+            toast.loading('Logging your account...', { id: 'sign-in' });
+          },
           onError(context) {
-            console.log('Error signing in:', context.error);
+            // console.log('Error signing in:', context.error);
             toast.error(context.error.message || 'Error signing in');
             form.setError('email', {
               type: 'value',
@@ -72,8 +73,9 @@ export function SignInCard() {
             });
             return;
           },
+          // eslint-disable-next-line
           onSuccess(context) {
-            console.log('Successfully signed in:', context);
+            // console.log('Successfully signed in:', context);
             toast.success('Successfully signed in!');
             return router.push('/');
           },
