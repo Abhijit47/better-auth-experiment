@@ -62,7 +62,11 @@ export function SignUpCard() {
           // eslint-disable-next-line
           onRequest: (ctx) => {
             //show loading
-            toast.loading('Creating your account...', { id: 'sign-up' });
+            toast.loading('Creating your account...', {
+              id: 'sign-up',
+              duration: 3000,
+            });
+            return;
           },
           // eslint-disable-next-line
           onSuccess: (ctx) => {

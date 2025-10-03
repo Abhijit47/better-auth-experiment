@@ -62,7 +62,11 @@ export function SignInCard() {
           // eslint-disable-next-line
           onRequest: (ctx) => {
             //show loading
-            toast.loading('Logging your account...', { id: 'sign-in' });
+            toast.loading('Logging your account...', {
+              id: 'sign-in',
+              duration: 3000,
+            });
+            return;
           },
           onError(context) {
             // console.log('Error signing in:', context.error);
