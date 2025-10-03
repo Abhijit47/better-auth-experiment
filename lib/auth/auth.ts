@@ -2,6 +2,7 @@ import { db } from '@/drizzle/db';
 import { betterAuth, BetterAuthOptions } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { nextCookies } from 'better-auth/next-js';
+import { haveIBeenPwned } from 'better-auth/plugins';
 
 import * as schemas from '@/drizzle/schemas';
 
@@ -40,7 +41,12 @@ export const auth = betterAuth({
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     },
   },
-  plugins: [nextCookies()],
+  plugins: [
+    haveIBeenPwned({
+      customPasswordCompromisedMessage: 'Please choose a more secure password.',
+    }),
+    nextCookies(),
+  ],
   user: userObj,
   account: accountObj,
   session: sessionObj,

@@ -76,6 +76,13 @@ export function SignUpCard() {
             toast.error(ctx.error.message || ctx.error.statusText, {
               id: 'sign-up',
             });
+
+            if (ctx.error.code === 'PASSWORD_COMPROMISED') {
+              form.setError('password', {
+                type: 'manual',
+                message: ctx.error.message,
+              });
+            }
           },
           // hookOptions: {
           //   cloneResponse: true,
