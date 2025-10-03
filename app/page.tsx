@@ -1,6 +1,8 @@
 import { buttonVariants } from '@/components/ui/button';
+import { auth } from '@/lib/auth/auth';
 import { cn } from '@/lib/utils';
 import type { Route } from 'next';
+import { headers } from 'next/headers';
 import Link from 'next/link';
 
 // const links = [
@@ -26,7 +28,11 @@ const dynamicNavItems: NavItem<string>[] = [
   { href: '/profile/jane', label: 'Jane Profile' },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth.api.getSession({ headers: await headers() });
+
+  console.log({ session });
+
   return (
     <div className={'h-dvh flex items-center justify-center'}>
       {navItems.map((link) => (
@@ -54,7 +60,9 @@ export default function Home() {
 
 function Card<T extends string>({ href }: { href: Route<T> | URL }) {
   return (
-    <Link href={href}>
+    <Link
+      href={href as Route}
+      className={cn(buttonVariants({ variant: 'link' }))}>
       <div>My Card</div>
     </Link>
   );
