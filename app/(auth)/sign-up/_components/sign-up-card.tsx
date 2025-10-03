@@ -77,14 +77,12 @@ export function SignUpCard() {
               id: 'sign-up',
             });
           },
-          hookOptions: {
-            cloneResponse: true,
-          },
+          // hookOptions: {
+          //   cloneResponse: true,
+          // },
         },
         image: 'https://placehold.co/100x100.png',
       });
-      // simulate async action
-      // await new Promise((resolve) => setTimeout(resolve, 2000));
     });
   }
 

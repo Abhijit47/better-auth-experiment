@@ -75,15 +75,11 @@ export function SignInCard() {
           },
           // eslint-disable-next-line
           onSuccess(context) {
-            // console.log('Successfully signed in:', context);
             toast.success('Successfully signed in!');
             return router.push('/');
           },
         },
       });
-      // simulate async action
-      // await new Promise((resolve) => setTimeout(resolve, 2000));
-      // return router.push('/');
     });
   }
 
