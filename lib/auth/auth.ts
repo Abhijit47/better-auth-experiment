@@ -1,33 +1,48 @@
 import { db } from '@/drizzle/db';
-import { betterAuth } from 'better-auth';
+import { betterAuth, BetterAuthOptions } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { nextCookies } from 'better-auth/next-js';
 
 import * as schemas from '@/drizzle/schemas';
+
+const userObj: BetterAuthOptions['user'] = {
+  modelName: 'users',
+};
+const accountObj: BetterAuthOptions['account'] = {
+  modelName: 'accounts',
+};
+const sessionObj: BetterAuthOptions['session'] = {
+  modelName: 'sessions',
+  cookieCache: {
+    enabled: true,
+    maxAge: 60, // 1 minute
+  },
+};
+const verificationObj: BetterAuthOptions['verification'] = {
+  modelName: 'verifications',
+};
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: 'pg', // or "mysql", "sqlite",
     transaction: true,
-    usePlural: true,
+    usePlural: false,
     schema: schemas,
+    debugLogs: false,
   }),
   emailAndPassword: {
-    autoSignIn: true,
+    autoSignIn: false, //defaults to true,
     enabled: true,
-    minPasswordLength: 8,
-    maxPasswordLength: 128,
-    // resetPasswordTokenExpiresIn: 1000 * 60 * 15, // 15 minutes
   },
-  user: {
-    modelName: 'users',
+  socialProviders: {
+    github: {
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    },
   },
-  account: {
-    modelName: 'accounts',
-  },
-  session: {
-    modelName: 'sessions',
-  },
-  verification: {
-    modelName: 'verifications',
-  },
+  plugins: [nextCookies()],
+  user: userObj,
+  account: accountObj,
+  session: sessionObj,
+  verification: verificationObj,
 });

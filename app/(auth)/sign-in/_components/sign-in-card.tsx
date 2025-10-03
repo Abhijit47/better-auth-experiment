@@ -28,7 +28,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
+import { authClient } from '@/lib/auth/auth-client';
 import { signInFormSchema, SignInFormValues } from '@/lib/zod/schemas';
+import { toast } from 'sonner';
 
 export function SignInCard() {
   const [isPending, startTransition] = useTransition();
@@ -50,9 +52,36 @@ export function SignInCard() {
     // ✅ This will be type-safe and validated.
     startTransition(async () => {
       console.log(values);
+      const { data, error } = await authClient.emailOtp.sendVerificationOtp({
+        email: 'user@example.com', // required
+        type: 'sign-in', // required
+        fetchOptions: {},
+      });
+      await authClient.signIn.email({
+        email: values.email,
+        password: values.password,
+        callbackURL: '/',
+        rememberMe: true,
+        fetchOptions: {
+          onError(context) {
+            console.log('Error signing in:', context.error);
+            toast.error(context.error.message || 'Error signing in');
+            form.setError('email', {
+              type: 'value',
+              message: context.error.message,
+            });
+            return;
+          },
+          onSuccess(context) {
+            console.log('Successfully signed in:', context);
+            toast.success('Successfully signed in!');
+            return router.push('/');
+          },
+        },
+      });
       // simulate async action
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      return router.push('/');
+      // await new Promise((resolve) => setTimeout(resolve, 2000));
+      // return router.push('/');
     });
   }
 

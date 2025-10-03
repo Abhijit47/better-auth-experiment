@@ -26,8 +26,10 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
+import { authClient } from '@/lib/auth/auth-client';
 import { cn } from '@/lib/utils';
 import { signUpformSchema, SignUpFormValues } from '@/lib/zod/schemas';
+import { toast } from 'sonner';
 
 export function SignUpCard() {
   const [isPending, startTransition] = useTransition();
@@ -50,10 +52,39 @@ export function SignUpCard() {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     startTransition(async () => {
-      console.log(values);
+      // console.log(values);
+      await authClient.signUp.email({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+        callbackURL: '/sign-in',
+        fetchOptions: {
+          // eslint-disable-next-line
+          onRequest: (ctx) => {
+            //show loading
+            toast.loading('Creating your account...', { id: 'sign-up' });
+          },
+          // eslint-disable-next-line
+          onSuccess: (ctx) => {
+            //redirect to the dashboard or sign in page
+            toast.success('Account created successfully!', { id: 'sign-up' });
+            router.push('/sign-in');
+          },
+          onError: (ctx) => {
+            // console.log(ctx.error);
+            // display the error message
+            toast.error(ctx.error.message || ctx.error.statusText, {
+              id: 'sign-up',
+            });
+          },
+          hookOptions: {
+            cloneResponse: true,
+          },
+        },
+        image: 'https://placehold.co/100x100.png',
+      });
       // simulate async action
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      return router.push('/sign-in');
+      // await new Promise((resolve) => setTimeout(resolve, 2000));
     });
   }
 
