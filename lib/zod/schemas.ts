@@ -1,22 +1,16 @@
 import { z } from 'zod';
 
-export const signUpformSchema = z
-  .object({
-    name: z.string().min(2).max(50),
-    email: z.email(),
-    password: z.string().min(8).max(128),
-    confirmPassword: z.string().min(8).max(128),
-  })
-  .superRefine(({ password, confirmPassword }, ctx) => {
-    if (password !== confirmPassword) {
-      ctx.addIssue({
-        code: 'custom',
-        message: 'Passwords do not match',
-      });
-    }
-  });
+export const signUpFormSchema = z.object({
+  name: z.string().min(2).max(50),
+  email: z.email(),
+  password: z.string().min(8).max(128),
+  confirmPassword: z.string().min(8).max(128),
+  username: z.string().min(5).max(50),
+  displayUsername: z.string().min(5).max(50).optional(),
+});
 
 export const signInFormSchema = z.object({
+  username: z.string().min(2).max(50).optional(),
   email: z.email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters long'),
 });
@@ -34,7 +28,7 @@ export const resetPasswordFormSchema = z.object({
     .min(8, 'New Password must be at least 8 characters long'),
 });
 
-export type SignUpFormValues = z.infer<typeof signUpformSchema>;
+export type SignUpFormValues = z.infer<typeof signUpFormSchema>;
 export type SignInFormValues = z.infer<typeof signInFormSchema>;
 export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordFormSchema>;
 export type ResetPasswordFormValues = z.infer<typeof resetPasswordFormSchema>;

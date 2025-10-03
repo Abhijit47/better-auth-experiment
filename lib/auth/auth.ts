@@ -2,7 +2,7 @@ import { db } from '@/drizzle/db';
 import { betterAuth, BetterAuthOptions } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { nextCookies } from 'better-auth/next-js';
-import { haveIBeenPwned } from 'better-auth/plugins';
+import { haveIBeenPwned, username } from 'better-auth/plugins';
 
 import * as schemas from '@/drizzle/schemas';
 
@@ -44,6 +44,33 @@ export const auth = betterAuth({
   plugins: [
     haveIBeenPwned({
       customPasswordCompromisedMessage: 'Please choose a more secure password.',
+    }),
+    username({
+      minUsernameLength: 5,
+      maxUsernameLength: 50,
+      usernameValidator: (username) => {
+        if (username === 'admin') {
+          return false;
+        }
+        return true;
+      },
+      displayUsernameValidator: (displayUsername) => {
+        // Allow only alphanumeric characters, underscores, and hyphens
+        return /^[a-zA-Z0-9_-]+$/.test(displayUsername);
+      },
+      usernameNormalization: (username) => {
+        return username
+          .toLowerCase()
+          .replaceAll('0', 'o')
+          .replaceAll('3', 'e')
+          .replaceAll('4', 'a');
+      },
+      displayUsernameNormalization: (displayUsername) =>
+        displayUsername.toLowerCase(),
+      validationOrder: {
+        username: 'post-normalization',
+        displayUsername: 'post-normalization',
+      },
     }),
     nextCookies(),
   ],

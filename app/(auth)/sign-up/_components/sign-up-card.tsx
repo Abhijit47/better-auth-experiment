@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { SquareArrowOutUpRightIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -26,74 +26,114 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
+// import { authClient } from '@/lib/auth/auth-client';
 import { authClient } from '@/lib/auth/auth-client';
 import { cn } from '@/lib/utils';
-import { signUpformSchema, SignUpFormValues } from '@/lib/zod/schemas';
+import { signUpFormSchema, SignUpFormValues } from '@/lib/zod/schemas';
 import { toast } from 'sonner';
 
 export function SignUpCard() {
+  const [usernameAvailable, setUsernameAvailable] = useState('');
   const [isPending, startTransition] = useTransition();
+  // const [isSocialPending, startSocialTransition] = useTransition();
   const router = useRouter();
 
   // 1. Define your form.
   const form = useForm<SignUpFormValues>({
-    resolver: zodResolver(signUpformSchema),
+    resolver: zodResolver(signUpFormSchema),
     defaultValues: {
       name: 'test1',
       email: 'test@test.com',
-      password: 'Admin1234',
-      confirmPassword: 'Admin1234',
+      password: 'Admin123',
+      confirmPassword: 'Admin123',
+      username: '',
     },
     mode: 'onChange',
   });
 
   // 2. Define a submit handler.
   function onSubmit(values: SignUpFormValues) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    startTransition(async () => {
-      // console.log(values);
-      await authClient.signUp.email({
-        name: values.name,
-        email: values.email,
-        password: values.password,
-        callbackURL: '/sign-in',
-        fetchOptions: {
-          // eslint-disable-next-line
-          onRequest: (ctx) => {
-            //show loading
-            toast.loading('Creating your account...', {
-              id: 'sign-up',
-              duration: 3000,
-            });
-            return;
-          },
-          // eslint-disable-next-line
-          onSuccess: (ctx) => {
-            //redirect to the dashboard or sign in page
-            toast.success('Account created successfully!', { id: 'sign-up' });
-            router.push('/sign-in');
-          },
-          onError: (ctx) => {
-            // console.log(ctx.error);
-            // display the error message
-            toast.error(ctx.error.message || ctx.error.statusText, {
-              id: 'sign-up',
-            });
+    const firstAndLastChar =
+      values.username.charAt(0) +
+      values.username.charAt(values.username.length - 1);
 
-            if (ctx.error.code === 'PASSWORD_COMPROMISED') {
-              form.setError('password', {
-                type: 'manual',
-                message: ctx.error.message,
-              });
-            }
-          },
-          // hookOptions: {
-          //   cloneResponse: true,
-          // },
-        },
-        image: 'https://placehold.co/100x100.png',
+    const imageUrl = `https://avatar.vercel.sh/rauchg.svg?rounded=60&size=60&text=${firstAndLastChar.toUpperCase()}`;
+
+    startTransition(async () => {
+      if (values.password !== values.confirmPassword) {
+        form.setError('confirmPassword', {
+          type: 'manual',
+          message: 'Passwords do not match',
+        });
+        return;
+      }
+
+      const { data: response, error } = await authClient.isUsernameAvailable({
+        username: values.username,
       });
+      if (error) {
+        console.log('Error checking username availability', error);
+        toast.error(error.message || error.statusText, {
+          id: 'username-check',
+        });
+        return;
+      }
+
+      if (response?.available) {
+        console.log('Username is available');
+        setUsernameAvailable('Username is available');
+        await authClient.signUp.email({
+          name: values.name,
+          email: values.email,
+          password: values.password,
+          username: values.username,
+          displayUsername: values.displayUsername,
+          callbackURL: '/sign-in',
+          image: imageUrl,
+          fetchOptions: {
+            // eslint-disable-next-line
+            onRequest: (ctx) => {
+              //show loading
+              toast.loading('Creating your account...', {
+                id: 'sign-up',
+                duration: 3000,
+              });
+              return;
+            },
+            // eslint-disable-next-line
+            onSuccess: (ctx) => {
+              //redirect to the dashboard or sign in page
+              toast.success('Account created successfully!', { id: 'sign-up' });
+              router.push('/sign-in');
+              return;
+            },
+            onError: (ctx) => {
+              toast.error(ctx.error.message || ctx.error.statusText, {
+                id: 'sign-up',
+              });
+              if (ctx.error.code === 'PASSWORD_COMPROMISED') {
+                form.setError('password', {
+                  type: 'manual',
+                  message: ctx.error.message,
+                });
+              }
+              return;
+            },
+            // hookOptions: {
+            //   cloneResponse: true,
+            // },
+          },
+        });
+        return;
+      } else {
+        console.log('Username is not available');
+        setUsernameAvailable('Username is not available');
+        form.setError('username', {
+          type: 'manual',
+          message: 'Username is not available',
+        });
+        return;
+      }
     });
   }
 
@@ -187,13 +227,35 @@ export function SignUpCard() {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name='username'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Enter your username' {...field} />
+                  </FormControl>
+
+                  {usernameAvailable ? (
+                    <p className='text-xs text-green-600'>
+                      {usernameAvailable}
+                    </p>
+                  ) : (
+                    <FormMessage className={'text-xs'} />
+                  )}
+                </FormItem>
+              )}
+            />
+
             <Separator />
             <CardAction className={'w-full space-y-2'}>
               <Button type='submit' className='w-full' disabled={isPending}>
-                {isPending ? 'Creating account...' : 'Create Account'}
+                {isPending ? 'Creating account...' : 'Continue'}
               </Button>
-              <Button variant='outline' className='w-full' disabled={isPending}>
-                {isPending ? 'Please wait...' : 'Sign up with Github'}
+
+              <Button type='button' variant='outline' className='w-full'>
+                Sign up with Github
               </Button>
             </CardAction>
           </form>

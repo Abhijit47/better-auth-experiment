@@ -11,6 +11,8 @@ export const users = pgTable('users', {
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
+  username: text('username').unique(),
+  displayUsername: text('display_username'),
 });
 
 export const sessions = pgTable('sessions', {
