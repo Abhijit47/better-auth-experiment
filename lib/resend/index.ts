@@ -1,5 +1,6 @@
 'use server';
 
+import SignUpEmailVerification from '@/emails/sign-up-email-verification';
 import WelcomeEmail, { WelcomeEmailProps } from '@/emails/welcome-mail';
 import { render, toPlainText } from '@react-email/render';
 import nodemailer from 'nodemailer';
@@ -49,5 +50,56 @@ export async function sendWelcomEmail(params: WelcomeEmailProps) {
       throw new Error(error.message);
     }
     console.log('welcome email sent', data);
+  }
+}
+
+export async function sendSignUpVerificationEmail(params: {
+  user: {
+    name: string;
+    email: string;
+  };
+  url: string;
+  token: string;
+}) {
+  const { user, url, token } = params;
+  const html = await render(SignUpEmailVerification({ ...params }));
+  const text = toPlainText(html);
+
+  if (isDev) {
+    // Create a transporter using MailHog's SMTP details
+    const transporter = nodemailer.createTransport({
+      host: 'localhost', // Or the IP address of your MailHog instance
+      port: 1025,
+      secure: false, // MailHog typically doesn't use TLS/SSL
+    });
+    try {
+      const info = await transporter.sendMail({
+        from: '"Better Auth Admin" <admin@better-auth.com>',
+        to: params.user.email,
+        subject: 'Verify your email address!',
+        text: text,
+        html: html,
+      });
+      console.log('Email sent: %s', info.messageId);
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+  } else {
+    const { data, error } = await resend.emails.send({
+      from: 'Admin <onboarding@resend.dev>',
+      to: params.user.email,
+      subject: 'Verify your email address!',
+      react: SignUpEmailVerification({
+        user: { name: user.name, email: user.email },
+        url: url,
+        token: token,
+      }),
+      text: text,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+    console.log('Verification email sent', data);
   }
 }

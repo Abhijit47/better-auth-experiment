@@ -30,6 +30,7 @@ import { Separator } from '@/components/ui/separator';
 import { authClient } from '@/lib/auth/auth-client';
 import { cn } from '@/lib/utils';
 import { signUpFormSchema, SignUpFormValues } from '@/lib/zod/schemas';
+import { BetterFetchError } from 'better-auth/react';
 import { toast } from 'sonner';
 
 export function SignUpCard() {
@@ -82,7 +83,7 @@ export function SignUpCard() {
       if (response?.available) {
         console.log('Username is available');
         setUsernameAvailable('Username is available');
-        await authClient.signUp.email({
+        const res = await authClient.signUp.email({
           name: values.name,
           email: values.email,
           password: values.password,
@@ -111,7 +112,8 @@ export function SignUpCard() {
               toast.error(ctx.error.message || ctx.error.statusText, {
                 id: 'sign-up',
               });
-              if (ctx.error.code === 'PASSWORD_COMPROMISED') {
+              const error = ctx.error as BetterFetchError & { code: string };
+              if (error.code === 'PASSWORD_COMPROMISED') {
                 form.setError('password', {
                   type: 'manual',
                   message: ctx.error.message,
@@ -124,6 +126,14 @@ export function SignUpCard() {
             // },
           },
         });
+        if (res.error == null && !res.data.user.emailVerified) {
+          toast.success(
+            'A verification email has been sent to your email address.',
+            { id: 'email-verification' }
+          );
+          const encodedEmail = encodeURIComponent(values.email);
+          router.push(`/verify-email?email=${encodedEmail}`); // Redirect to the email verification page
+        }
         return;
       } else {
         console.log('Username is not available');

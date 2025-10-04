@@ -6,7 +6,7 @@ import { nextCookies } from 'better-auth/next-js';
 import { haveIBeenPwned, username } from 'better-auth/plugins';
 
 import * as schemas from '@/drizzle/schemas';
-import { sendWelcomEmail } from '../resend';
+import { sendSignUpVerificationEmail, sendWelcomEmail } from '../resend';
 
 const userObj: BetterAuthOptions['user'] = {
   modelName: 'users',
@@ -36,6 +36,34 @@ export const auth = betterAuth({
   emailAndPassword: {
     autoSignIn: false, //defaults to true,
     enabled: true,
+  },
+  emailVerification: {
+    autoSignInAfterVerification: true,
+    sendOnSignUp: true,
+
+    // eslint-disable-next-line
+    sendVerificationEmail({ user, url, token }, request) {
+      // console.log('sendVerificationEmail called with:', { user, url, token });
+      return sendSignUpVerificationEmail({
+        user: {
+          name: user.name,
+          email: user?.email,
+        },
+        url,
+        token,
+      });
+    },
+    // sendOnSignIn: true,
+    // onEmailVerification(user, request) {
+    //   console.log({request})
+    //   console.log('Email verified for user:', user);
+    //   return Promise.resolve();
+    // },
+    // afterEmailVerification(user, request) {
+    //   console.log({request})
+    //   console.log('afterEmailVerification hook called for user:', user);
+    //   return Promise.resolve();
+    // },
   },
   socialProviders: {
     github: {
