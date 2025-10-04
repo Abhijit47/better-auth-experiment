@@ -13,7 +13,7 @@ export async function sendWelcomEmail(params: WelcomeEmailProps) {
   const { data, error } = await resend.emails.send({
     from: 'Admin <onboarding@resend.dev>',
     to: params.email!,
-    subject: 'Hello world',
+    subject: 'Welcome to Better Auth!',
     react: WelcomeEmail({
       name: params.name,
       userImage: params.userImage,
