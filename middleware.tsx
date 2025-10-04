@@ -37,9 +37,13 @@ event.waitUntil(
 
 export async function middleware(request: NextRequest) {
   const session = await getCookieCache(request);
+  // const sessionCookie = getSessionCookie(request);
   if (!session?.user) {
     return NextResponse.redirect(new URL('/sign-in', request.url));
   }
+  // if (!sessionCookie) {
+  //   return NextResponse.redirect(new URL('/sign-in', request.url));
+  // }
   // return request;
   return NextResponse.next();
 }
@@ -67,5 +71,7 @@ export const config: MiddlewareConfig & {
     '/profile(.*)',
     '/admin(.*)',
     // '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+    // '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
   ],
+  // matcher: ['/((?!_next/static|_next/image|favicon.ico|api/auth).*)'],
 };
