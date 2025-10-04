@@ -7,7 +7,7 @@ type PageProps = {
 };
 
 export default async function VerifyEmail(props: PageProps) {
-  const email = (await props.params).email;
+  const email = (await props.searchParams).email;
   console.log('email', email);
 
   if (!email) return redirect('/sign-in');

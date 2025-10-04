@@ -48,12 +48,16 @@ export default function UserButton() {
                     }>
                     <Image
                       src={
-                        session.data.user.image ??
+                        session.data.user?.image ??
                         `https://avatar.vercel.sh/rauchg.svg?text=${
-                          session.data.user.name?.[0] ?? 'U'
+                          session.data.user?.name?.[0] ?? 'U'
                         }`
                       }
-                      alt={session.data.user.name}
+                      alt={
+                        session.data.user?.name
+                          ? session.data.user?.name + ' avatar'
+                          : 'User avatar'
+                      }
                       width={40}
                       height={40}
                       className={'object-cover w-full h-full rounded-full'}
@@ -64,10 +68,10 @@ export default function UserButton() {
                   <div className='grid gap-4'>
                     <div className='space-y-2'>
                       <h4 className='leading-none font-medium'>
-                        {session.data.user.name}
+                        {session.data.user?.name}
                       </h4>
                       <p className='text-muted-foreground text-sm'>
-                        {session.data.user.email}
+                        {session.data.user?.email}
                       </p>
                     </div>
                     <Separator />
