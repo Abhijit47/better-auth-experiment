@@ -1,5 +1,5 @@
 import { db } from '@/drizzle/db';
-import { betterAuth, BetterAuthOptions } from 'better-auth';
+import { betterAuth, BetterAuthOptions, User } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { createAuthMiddleware } from 'better-auth/api';
 import { nextCookies } from 'better-auth/next-js';
@@ -83,16 +83,18 @@ export const auth = betterAuth({
   hooks: {
     after: createAuthMiddleware(async (ctx) => {
       if (ctx.path.startsWith('/sign-up')) {
+        const body = ctx.body as User;
+        const url = 'https://avatar.vercel.sh/rauchg?rounded=60';
         const user = ctx.context.newSession?.user ?? {
-          name: ctx.body.name,
-          email: ctx.body.email,
-          image: ctx.body.image,
+          name: body.name,
+          email: body.email,
+          image: body.image,
         };
 
         if (user !== null) {
           await sendWelcomEmail({
             name: user.name,
-            userImage: user.image,
+            userImage: user.image ?? url,
             email: user.email,
           });
         }
