@@ -7,7 +7,7 @@ export default async function SignInPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
-  if (!session) {
+  if (session) {
     return permanentRedirect('/');
   }
   return <SignInCard />;

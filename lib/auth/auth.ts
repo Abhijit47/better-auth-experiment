@@ -1,10 +1,12 @@
 import { db } from '@/drizzle/db';
 import { betterAuth, BetterAuthOptions } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { createAuthMiddleware } from 'better-auth/api';
 import { nextCookies } from 'better-auth/next-js';
 import { haveIBeenPwned, username } from 'better-auth/plugins';
 
 import * as schemas from '@/drizzle/schemas';
+import { sendWelcomEmail } from '../resend';
 
 const userObj: BetterAuthOptions['user'] = {
   modelName: 'users',
@@ -78,4 +80,23 @@ export const auth = betterAuth({
   account: accountObj,
   session: sessionObj,
   verification: verificationObj,
+  hooks: {
+    after: createAuthMiddleware(async (ctx) => {
+      if (ctx.path.startsWith('/sign-up')) {
+        const user = ctx.context.newSession?.user ?? {
+          name: ctx.body.name,
+          email: ctx.body.email,
+          image: ctx.body.image,
+        };
+
+        if (user !== null) {
+          await sendWelcomEmail({
+            name: user.name,
+            userImage: user.image,
+            email: user.email,
+          });
+        }
+      }
+    }),
+  },
 });
