@@ -1,3 +1,4 @@
+import { VerificationEmailProps } from '@/lib/resend';
 import {
   Body,
   Button,
@@ -14,27 +15,9 @@ import {
   xonokai,
 } from '@react-email/components';
 
-export interface SignUpEmailVerificationProps {
-  user: {
-    name: string;
-    email: string;
-  };
-  url: string;
-  token: string;
-}
+export default function VerificationEmail(props: VerificationEmailProps) {
+  const { user, url, token } = props;
 
-export default function SignUpEmailVerification({
-  user,
-  url,
-  token,
-}: {
-  user: {
-    name: string;
-    email: string;
-  };
-  url: string;
-  token: string;
-}) {
   return (
     <Html>
       <Head />
@@ -148,11 +131,11 @@ export default function SignUpEmailVerification({
   );
 }
 
-SignUpEmailVerification.PreviewProps = {
+VerificationEmail.PreviewProps = {
   user: {
     name: 'alanturing',
     email: 'alan.turing@example.com',
   },
   url: `http://example.com/verify-email?token=${crypto.randomUUID()}`,
   token: crypto.randomUUID(),
-} as SignUpEmailVerificationProps;
+} as VerificationEmailProps;

@@ -63,7 +63,7 @@ export function ForgotPasswordCard() {
         redirectTo: `/reset-password`,
         fetchOptions: {
           onError(context) {
-            console.log('Forgot password error', context);
+            // console.log('Forgot password error', context);
             toast.error(
               context.error.message ||
                 'Failed to send reset email. Please try again.'

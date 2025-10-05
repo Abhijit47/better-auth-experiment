@@ -1,8 +1,8 @@
 'use server';
 
 import PasswordResetEmail from '@/emails/password-reset-email';
-import SignUpEmailVerification from '@/emails/sign-up-email-verification';
-import WelcomeEmail, { WelcomeEmailProps } from '@/emails/welcome-mail';
+import SignUpEmailVerification from '@/emails/verification-email';
+import WelcomeEmail from '@/emails/welcome-mail';
 import { render, toPlainText } from '@react-email/render';
 import { User } from 'better-auth';
 import nodemailer from 'nodemailer';
@@ -11,6 +11,18 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const isDev = process.env.NODE_ENV === 'development';
+
+export interface WelcomeEmailProps {
+  name: string;
+  userImage: string;
+  email: string;
+}
+
+export interface VerificationEmailProps {
+  user: User;
+  url: string;
+  token: string;
+}
 
 export interface PasswordResetEmailProps {
   user: User;
@@ -61,14 +73,7 @@ export async function sendWelcomEmail(params: WelcomeEmailProps) {
   }
 }
 
-export async function sendSignUpVerificationEmail(params: {
-  user: {
-    name: string;
-    email: string;
-  };
-  url: string;
-  token: string;
-}) {
+export async function sendVerificationEmail(params: VerificationEmailProps) {
   const { user, url, token } = params;
   const html = await render(SignUpEmailVerification({ ...params }));
   const text = toPlainText(html);
@@ -98,7 +103,7 @@ export async function sendSignUpVerificationEmail(params: {
       to: params.user.email,
       subject: 'Verify your email address!',
       react: SignUpEmailVerification({
-        user: { name: user.name, email: user.email },
+        user: user,
         url: url,
         token: token,
       }),

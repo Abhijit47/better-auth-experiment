@@ -6,9 +6,10 @@ import { nextCookies } from 'better-auth/next-js';
 import { haveIBeenPwned, username } from 'better-auth/plugins';
 
 import * as schemas from '@/drizzle/schemas';
+
 import {
   sendPasswordResetEmail,
-  sendSignUpVerificationEmail,
+  sendVerificationEmail,
   sendWelcomEmail,
 } from '../resend';
 
@@ -77,13 +78,10 @@ const emailVerificationConfigs: BetterAuthOptions['emailVerification'] = {
   sendOnSignIn: true,
   expiresIn: 60 * 60 * 24, // 24 hours
   // eslint-disable-next-line
-  sendVerificationEmail({ user, url, token }, request) {
+  sendVerificationEmail: async ({ user, url, token }, request) => {
     // console.log('sendVerificationEmail called with:', { user, url, token });
-    return sendSignUpVerificationEmail({
-      user: {
-        name: user.name,
-        email: user?.email,
-      },
+    return sendVerificationEmail({
+      user: user,
       url,
       token,
     });
@@ -102,6 +100,47 @@ const emailVerificationConfigs: BetterAuthOptions['emailVerification'] = {
   //   return Promise.resolve();
   // },
 };
+
+const socialProvidersConfigs: BetterAuthOptions['socialProviders'] = {
+  github: {
+    clientId: process.env.GITHUB_CLIENT_ID!,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+  },
+};
+
+const pluginsConfigs: BetterAuthOptions['plugins'] = [
+  haveIBeenPwned({
+    customPasswordCompromisedMessage: 'Please choose a more secure password.',
+  }),
+  username({
+    minUsernameLength: 5,
+    maxUsernameLength: 50,
+    usernameValidator: (username) => {
+      if (username === 'admin') {
+        return false;
+      }
+      return true;
+    },
+    displayUsernameValidator: (displayUsername) => {
+      // Allow only alphanumeric characters, underscores, and hyphens
+      return /^[a-zA-Z0-9_-]+$/.test(displayUsername);
+    },
+    usernameNormalization: (username) => {
+      return username
+        .toLowerCase()
+        .replaceAll('0', 'o')
+        .replaceAll('3', 'e')
+        .replaceAll('4', 'a');
+    },
+    displayUsernameNormalization: (displayUsername) =>
+      displayUsername.toLowerCase(),
+    validationOrder: {
+      username: 'post-normalization',
+      displayUsername: 'post-normalization',
+    },
+  }),
+  nextCookies(),
+];
 
 const hooksConfigs: BetterAuthOptions['hooks'] = {
   after: createAuthMiddleware(async (ctx) => {
@@ -135,45 +174,8 @@ export const auth = betterAuth({
   }),
   emailAndPassword: emailAndPasswordConfigs,
   emailVerification: emailVerificationConfigs,
-  socialProviders: {
-    github: {
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-    },
-  },
-  plugins: [
-    haveIBeenPwned({
-      customPasswordCompromisedMessage: 'Please choose a more secure password.',
-    }),
-    username({
-      minUsernameLength: 5,
-      maxUsernameLength: 50,
-      usernameValidator: (username) => {
-        if (username === 'admin') {
-          return false;
-        }
-        return true;
-      },
-      displayUsernameValidator: (displayUsername) => {
-        // Allow only alphanumeric characters, underscores, and hyphens
-        return /^[a-zA-Z0-9_-]+$/.test(displayUsername);
-      },
-      usernameNormalization: (username) => {
-        return username
-          .toLowerCase()
-          .replaceAll('0', 'o')
-          .replaceAll('3', 'e')
-          .replaceAll('4', 'a');
-      },
-      displayUsernameNormalization: (displayUsername) =>
-        displayUsername.toLowerCase(),
-      validationOrder: {
-        username: 'post-normalization',
-        displayUsername: 'post-normalization',
-      },
-    }),
-    nextCookies(),
-  ],
+  socialProviders: socialProvidersConfigs,
+  plugins: pluginsConfigs,
   user: userConfigs,
   account: accountConfigs,
   session: sessionConfigs,

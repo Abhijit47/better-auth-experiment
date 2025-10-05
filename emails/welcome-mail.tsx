@@ -1,3 +1,4 @@
+import { WelcomeEmailProps } from '@/lib/resend';
 import {
   Body,
   Container,
@@ -12,17 +13,9 @@ import {
   Text,
 } from '@react-email/components';
 
-export interface WelcomeEmailProps {
-  name?: string;
-  userImage?: string;
-  email?: string;
-}
+export default function WelcomeEmail(props: WelcomeEmailProps) {
+  const { name, userImage, email } = props;
 
-export default function WelcomeEmail({
-  name,
-  userImage,
-  email,
-}: WelcomeEmailProps) {
   return (
     <Html>
       <Head />
