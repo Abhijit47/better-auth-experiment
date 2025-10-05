@@ -54,8 +54,8 @@ export default function VerifyEmailCard({ email }: { email: string }) {
         email: decodedEmail,
         callbackURL: '/',
         fetchOptions: {
+          // eslint-disable-next-line
           onRequest(context) {
-            console.log('resending verification email', context);
             toast.loading('Resending verification email...', {
               id: 'resend-verification-email',
             });

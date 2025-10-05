@@ -8,21 +8,80 @@ import { haveIBeenPwned, username } from 'better-auth/plugins';
 import * as schemas from '@/drizzle/schemas';
 import { sendSignUpVerificationEmail, sendWelcomEmail } from '../resend';
 
-const userObj: BetterAuthOptions['user'] = {
+const userConfigs: BetterAuthOptions['user'] = {
   modelName: 'users',
 };
-const accountObj: BetterAuthOptions['account'] = {
+
+const accountConfigs: BetterAuthOptions['account'] = {
   modelName: 'accounts',
 };
-const sessionObj: BetterAuthOptions['session'] = {
+
+const sessionConfigs: BetterAuthOptions['session'] = {
   modelName: 'sessions',
   cookieCache: {
     enabled: true,
     maxAge: 60, // 1 minute
   },
 };
-const verificationObj: BetterAuthOptions['verification'] = {
+
+const verificationConfigs: BetterAuthOptions['verification'] = {
   modelName: 'verifications',
+};
+
+const emailVerificationConfigs: BetterAuthOptions['emailVerification'] = {
+  autoSignInAfterVerification: true,
+  // send verification email on sign up
+  sendOnSignUp: true,
+  // if not validate email during sign up, then it will send verification email on sign in
+  sendOnSignIn: true,
+  expiresIn: 60 * 60 * 24, // 24 hours
+  // eslint-disable-next-line
+  sendVerificationEmail({ user, url, token }, request) {
+    // console.log('sendVerificationEmail called with:', { user, url, token });
+    return sendSignUpVerificationEmail({
+      user: {
+        name: user.name,
+        email: user?.email,
+      },
+      url,
+      token,
+    });
+  },
+
+  // Extra Hooks
+  // onEmailVerification(user, request) {
+  //   // console.log({ request });
+  //   console.log('onEmailVerification:', user);
+  //   return Promise.resolve();
+  // },
+  // // eslint-disable-next-line
+  // afterEmailVerification(user, request) {
+  //   // console.log({ request });
+  //   console.log('afterEmailVerification:', user);
+  //   return Promise.resolve();
+  // },
+};
+
+const hooksConfigs: BetterAuthOptions['hooks'] = {
+  after: createAuthMiddleware(async (ctx) => {
+    if (ctx.path.startsWith('/sign-up')) {
+      const body = ctx.body as User;
+      const url = 'https://avatar.vercel.sh/rauchg?rounded=60';
+      const user = ctx.context.newSession?.user ?? {
+        name: body.name,
+        email: body.email,
+        image: body.image,
+      };
+
+      if (user !== null) {
+        await sendWelcomEmail({
+          name: user.name,
+          userImage: user.image ?? url,
+          email: user.email,
+        });
+      }
+    }
+  }),
 };
 
 export const auth = betterAuth({
@@ -37,34 +96,7 @@ export const auth = betterAuth({
     autoSignIn: false, //defaults to true,
     enabled: true,
   },
-  emailVerification: {
-    autoSignInAfterVerification: true,
-    sendOnSignUp: true,
-
-    // eslint-disable-next-line
-    sendVerificationEmail({ user, url, token }, request) {
-      // console.log('sendVerificationEmail called with:', { user, url, token });
-      return sendSignUpVerificationEmail({
-        user: {
-          name: user.name,
-          email: user?.email,
-        },
-        url,
-        token,
-      });
-    },
-    // sendOnSignIn: true,
-    // onEmailVerification(user, request) {
-    //   console.log({request})
-    //   console.log('Email verified for user:', user);
-    //   return Promise.resolve();
-    // },
-    // afterEmailVerification(user, request) {
-    //   console.log({request})
-    //   console.log('afterEmailVerification hook called for user:', user);
-    //   return Promise.resolve();
-    // },
-  },
+  emailVerification: emailVerificationConfigs,
   socialProviders: {
     github: {
       clientId: process.env.GITHUB_CLIENT_ID!,
@@ -104,29 +136,9 @@ export const auth = betterAuth({
     }),
     nextCookies(),
   ],
-  user: userObj,
-  account: accountObj,
-  session: sessionObj,
-  verification: verificationObj,
-  hooks: {
-    after: createAuthMiddleware(async (ctx) => {
-      if (ctx.path.startsWith('/sign-up')) {
-        const body = ctx.body as User;
-        const url = 'https://avatar.vercel.sh/rauchg?rounded=60';
-        const user = ctx.context.newSession?.user ?? {
-          name: body.name,
-          email: body.email,
-          image: body.image,
-        };
-
-        if (user !== null) {
-          await sendWelcomEmail({
-            name: user.name,
-            userImage: user.image ?? url,
-            email: user.email,
-          });
-        }
-      }
-    }),
-  },
+  user: userConfigs,
+  account: accountConfigs,
+  session: sessionConfigs,
+  verification: verificationConfigs,
+  hooks: hooksConfigs,
 });

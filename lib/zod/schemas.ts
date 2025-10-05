@@ -9,10 +9,14 @@ export const signUpFormSchema = z.object({
   displayUsername: z.string().min(5).max(50).optional(),
 });
 
-export const signInFormSchema = z.object({
-  username: z.string().min(2).max(50).optional(),
+export const signInWithEmailSchema = z.object({
   email: z.email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters long'),
+});
+
+export const signInWithUsernameSchema = z.object({
+  username: z.string().min(2).max(50).optional(),
+  upassword: z.string().min(8, 'Password must be at least 8 characters long'),
 });
 
 export const forgotPasswordFormSchema = z.object({
@@ -29,6 +33,9 @@ export const resetPasswordFormSchema = z.object({
 });
 
 export type SignUpFormValues = z.infer<typeof signUpFormSchema>;
-export type SignInFormValues = z.infer<typeof signInFormSchema>;
+export type SignInWithEmailFormValues = z.infer<typeof signInWithEmailSchema>;
+export type SignInWithUsernameFormValues = z.infer<
+  typeof signInWithUsernameSchema
+>;
 export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordFormSchema>;
 export type ResetPasswordFormValues = z.infer<typeof resetPasswordFormSchema>;

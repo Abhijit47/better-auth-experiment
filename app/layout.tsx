@@ -34,7 +34,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange>
           {children}
-          <Toaster position='top-center' richColors duration={3000} />
+          <Toaster
+            position='top-center'
+            richColors
+            duration={3000}
+            closeButton
+          />
         </ThemeProvider>
       </body>
     </html>

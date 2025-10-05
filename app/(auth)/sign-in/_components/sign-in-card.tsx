@@ -30,7 +30,12 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { authClient } from '@/lib/auth/auth-client';
-import { signInFormSchema, SignInFormValues } from '@/lib/zod/schemas';
+import {
+  SignInWithEmailFormValues,
+  signInWithEmailSchema,
+  SignInWithUsernameFormValues,
+  signInWithUsernameSchema,
+} from '@/lib/zod/schemas';
 import { toast } from 'sonner';
 
 type TabType = 'email' | 'username';
@@ -41,41 +46,60 @@ export function SignInCard() {
   const router = useRouter();
 
   // 1. Define your form.
-  const form = useForm<SignInFormValues>({
-    resolver: zodResolver(signInFormSchema),
-    defaultValues: {
-      username: undefined,
-      email: '',
-      password: '',
-    },
+  const form = useForm<
+    SignInWithEmailFormValues | SignInWithUsernameFormValues
+  >({
+    resolver: zodResolver(
+      tab === 'email' ? signInWithEmailSchema : signInWithUsernameSchema
+    ),
+    defaultValues:
+      tab === 'email'
+        ? {
+            email: 'test@test.com',
+            password: 'Admin123852456',
+          }
+        : {
+            username: 'testuser',
+            upassword: 'Admin123852456',
+          },
     mode: 'onChange',
   });
 
+  function toggleTab() {
+    setTab((tab) => (tab === 'email' ? 'username' : 'email'));
+  }
+
   // 2. Define a submit handler.
-  function onSubmit(values: SignInFormValues) {
+  function onSubmit(
+    values: SignInWithEmailFormValues | SignInWithUsernameFormValues
+  ) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
+    const loginWithEmail = values as SignInWithEmailFormValues;
+    const loginWithUsername = values as SignInWithUsernameFormValues;
+
     startTransition(async () => {
       switch (tab) {
-        case 'email':
-          await authClient.signIn.email({
-            email: values.email,
-            password: values.password,
-            callbackURL: '/',
+        case 'email': {
+          const res = await authClient.signIn.email({
+            email: loginWithEmail.email,
+            password: loginWithEmail.password,
+            // callbackURL: '/',
             rememberMe: true,
             fetchOptions: {
               // eslint-disable-next-line
               onRequest: (ctx) => {
                 //show loading
                 toast.loading('Logging your account...', {
-                  id: 'sign-in',
+                  id: 'sign-in-email',
                   duration: 3000,
+                  closeButton: true,
                 });
                 return;
               },
               onError(context) {
                 // console.log('Error signing in:', context.error);
-                toast.error(context.error.message || 'Error signing in');
+                toast.error(context.error.message || 'Failed to sign in user');
                 form.setError('email', {
                   type: 'value',
                   message: context.error.message,
@@ -85,39 +109,61 @@ export function SignInCard() {
               // eslint-disable-next-line
               onSuccess(context) {
                 toast.success('Successfully signed in!');
-                return router.push('/');
+                // return router.push('/');
+                return;
               },
             },
           });
 
-          break;
+          if (res.error === null && !res.data.user.emailVerified) {
+            toast.success(
+              'A verification email has been sent to your email address.',
+              { id: 'email-verification' }
+            );
+            const encodedEmail = encodeURIComponent(loginWithEmail.email);
+            router.push(`/verify-email?email=${encodedEmail}`); // Redirect to the email verification page
+          } else {
+            router.push('/'); // Redirect to the homepage or dashboard after successful sign-in
+            return router.refresh();
+          }
 
-        case 'username':
-          if (!values.username) {
-            form.setError('username', {
-              type: 'value',
-              message: 'Username is required',
-            });
+          break;
+        }
+
+        case 'username': {
+          if (!loginWithUsername.username) {
+            form.setError(
+              'username',
+              {
+                type: 'validate',
+                message: 'Username is required',
+              },
+              { shouldFocus: true }
+            );
             return;
           }
-          await authClient.signIn.username({
-            username: values.username,
-            password: values.password,
+
+          const res = await authClient.signIn.username({
+            username: loginWithUsername.username,
+            password: loginWithUsername.upassword,
             rememberMe: true,
-            callbackURL: '/',
+            // callbackURL: '/',
             fetchOptions: {
               // eslint-disable-next-line
               onRequest: (ctx) => {
                 //show loading
                 toast.loading('Logging your account...', {
-                  id: 'sign-in',
+                  id: 'sign-in-username',
                   duration: 3000,
+                  closeButton: true,
                 });
                 return;
               },
               onError(context) {
                 // console.log('Error signing in:', context.error);
-                toast.error(context.error.message || 'Error signing in');
+                toast.error(
+                  context.error.message || 'Failed to sign in with username'
+                );
                 form.setError('email', {
                   type: 'value',
                   message: context.error.message,
@@ -127,15 +173,47 @@ export function SignInCard() {
               // eslint-disable-next-line
               onSuccess(context) {
                 toast.success('Successfully signed in!');
-                return router.push('/');
+                // return router.push('/');
+                return;
               },
             },
           });
-          break;
 
-        default:
+          if (res.error === null && !res.data.user.emailVerified) {
+            toast.success(
+              'A verification email has been sent to your email address.',
+              { id: 'email-verification' }
+            );
+            const encodedEmail = encodeURIComponent(res.data.user.email);
+            router.push(`/verify-email?email=${encodedEmail}`); // Redirect to the email verification page
+          } else if (
+            (res.error !== null && res.error.code) ===
+            'INVALID_USERNAME_OR_PASSWORD'
+          ) {
+            form.setError('username', {
+              type: 'value',
+              message: res.error?.message,
+            });
+            return;
+          } else if (
+            (res.error !== null && res.error.code) === 'VALIDATION_ERROR'
+          ) {
+            form.setError('username', {
+              type: 'value',
+              message: res.error?.message,
+            });
+            return;
+          } else {
+            router.push('/'); // Redirect to the homepage or dashboard after successful sign-in
+            return router.refresh();
+          }
+          break;
+        }
+
+        default: {
           toast.error('Invalid tab');
           break;
+        }
       }
     });
   }
@@ -158,19 +236,15 @@ export function SignInCard() {
         </CardAction>
       </CardHeader>
       <CardContent>
-        <Tabs
-          defaultValue={tab}
-          onValueChange={(value) => setTab(value as TabType)}>
+        <Tabs defaultValue={tab} onValueChange={toggleTab}>
           <TabsList className={'w-full'}>
             <TabsTrigger value='email'>Email</TabsTrigger>
             <TabsTrigger value='username'>Username</TabsTrigger>
           </TabsList>
 
-          <TabsContent value='email'>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className='space-y-4'>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <TabsContent value='email' className='space-y-4'>
                 <FormField
                   control={form.control}
                   name='email'
@@ -227,15 +301,11 @@ export function SignInCard() {
                     Login with Github
                   </Button>
                 </CardAction>
-              </form>
-            </Form>
-          </TabsContent>
+                {/* </form>
+            </Form> */}
+              </TabsContent>
 
-          <TabsContent value='username'>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className='space-y-4'>
+              <TabsContent value='username' className='space-y-4'>
                 <FormField
                   control={form.control}
                   name='username'
@@ -245,8 +315,20 @@ export function SignInCard() {
                       <FormControl>
                         <Input
                           type='text'
-                          placeholder='yourusername'
-                          {...field}
+                          placeholder='your username'
+                          // {...field}
+                          onBlur={field.onBlur}
+                          ref={field.ref}
+                          disabled={field.disabled}
+                          defaultValue={field.value}
+                          onChange={(e) => {
+                            field.onChange(e.target.value.trim());
+                            form.setValue('username', e.target.value.trim(), {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                              shouldTouch: true,
+                            });
+                          }}
                         />
                       </FormControl>
 
@@ -256,7 +338,7 @@ export function SignInCard() {
                 />
                 <FormField
                   control={form.control}
-                  name='password'
+                  name='upassword'
                   render={({ field }) => (
                     <FormItem>
                       <div className='flex items-center'>
@@ -292,9 +374,9 @@ export function SignInCard() {
                     Login with Github
                   </Button>
                 </CardAction>
-              </form>
-            </Form>
-          </TabsContent>
+              </TabsContent>
+            </form>
+          </Form>
         </Tabs>
       </CardContent>
     </Card>
