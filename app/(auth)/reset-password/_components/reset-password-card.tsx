@@ -23,23 +23,26 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
+import { authClient } from '@/lib/auth/auth-client';
 import {
   resetPasswordFormSchema,
   ResetPasswordFormValues,
 } from '@/lib/zod/schemas';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTransition } from 'react';
+import { toast } from 'sonner';
 
-export function ResetPasswordCard() {
+export function ResetPasswordCard({ token }: { token: string }) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // 1. Define your form.
   const form = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordFormSchema),
     defaultValues: {
-      oldPassword: 'Admin1234',
-      newPassword: 'Admin1234',
+      oldPassword: 'Admin123',
+      newPassword: 'Admin123',
     },
     mode: 'onChange',
   });
@@ -48,10 +51,34 @@ export function ResetPasswordCard() {
   function onSubmit(values: ResetPasswordFormValues) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
+    if (values.oldPassword !== values.newPassword) {
+      form.setError('newPassword', {
+        type: 'manual',
+        message: 'Passwords do not match',
+      });
+      return;
+    }
     startTransition(async () => {
-      console.log(values);
-      // simulate async action
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await authClient.resetPassword(
+        {
+          newPassword: values.newPassword,
+          token,
+        },
+        {
+          onError: (error) => {
+            toast.error(error.error.message || 'Failed to reset password');
+          },
+          onSuccess: () => {
+            toast.success('Password reset successful', {
+              description: 'Redirection to login...',
+            });
+            setTimeout(() => {
+              router.push('/sign-in');
+            }, 1000);
+          },
+        }
+      );
+
       return router.push('/sign-in');
     });
   }
@@ -64,6 +91,11 @@ export function ResetPasswordCard() {
           <p className={'text-xs'}>
             Enter your old password and a new password to update your account.
           </p>
+          {searchParams.get('error') && (
+            <p className={'text-xs text-red-600'}>
+              Error: ${searchParams.get('error')}
+            </p>
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent>

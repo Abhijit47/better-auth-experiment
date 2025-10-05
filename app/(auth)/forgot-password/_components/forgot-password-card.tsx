@@ -26,35 +26,62 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
+import { authClient } from '@/lib/auth/auth-client';
 import {
   forgotPasswordFormSchema,
   ForgotPasswordFormValues,
 } from '@/lib/zod/schemas';
-import { useRouter } from 'next/navigation';
+import { ArrowLeftCircle } from 'lucide-react';
 import { useTransition } from 'react';
+import { toast } from 'sonner';
 
 export function ForgotPasswordCard() {
   const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+  // const router = useRouter();
   // 1. Define your form.
   const form = useForm<ForgotPasswordFormValues>({
     resolver: zodResolver(forgotPasswordFormSchema),
     defaultValues: {
-      email: '',
+      email: 'test@test.com',
     },
     mode: 'onChange',
   });
+
+  const currenWindowClose = () => {
+    window.opener = null;
+    window.open('', '_self');
+    window.close();
+  };
 
   // 2. Define a submit handler.
   function onSubmit(values: ForgotPasswordFormValues) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     startTransition(async () => {
-      console.log(values);
-      // simulate async action
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      router.push('/reset-password');
-      return;
+      await authClient.forgetPassword({
+        email: values.email,
+        redirectTo: `/reset-password`,
+        fetchOptions: {
+          onError(context) {
+            console.log('Forgot password error', context);
+            toast.error(
+              context.error.message ||
+                'Failed to send reset email. Please try again.'
+            );
+            return;
+          },
+          // eslint-disable-next-line
+          onSuccess(context) {
+            // console.log('Forgot password success', context);
+            // context.response.json()
+            toast.success('Password reset link sent! Please check your email.');
+            setTimeout(() => {
+              currenWindowClose();
+            }, 1200);
+            return;
+          },
+        },
+      });
     });
   }
 
@@ -101,6 +128,19 @@ export function ForgotPasswordCard() {
 
             <Separator />
             <CardAction className={'w-full space-y-2'}>
+              <Button asChild disabled={isPending}>
+                <Link
+                  href={'/sign-in'}
+                  className={cn(
+                    buttonVariants({
+                      variant: 'secondary',
+                      className: 'w-full',
+                    })
+                  )}>
+                  <ArrowLeftCircle className='h-4 w-4' />
+                  Go Banck to Sign-In
+                </Link>
+              </Button>
               <Button type='submit' className='w-full' disabled={isPending}>
                 {isPending ? 'Sending...' : 'Send Reset Link'}
               </Button>

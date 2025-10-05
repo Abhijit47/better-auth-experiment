@@ -6,7 +6,11 @@ import { nextCookies } from 'better-auth/next-js';
 import { haveIBeenPwned, username } from 'better-auth/plugins';
 
 import * as schemas from '@/drizzle/schemas';
-import { sendSignUpVerificationEmail, sendWelcomEmail } from '../resend';
+import {
+  sendPasswordResetEmail,
+  sendSignUpVerificationEmail,
+  sendWelcomEmail,
+} from '../resend';
 
 const userConfigs: BetterAuthOptions['user'] = {
   modelName: 'users',
@@ -26,6 +30,43 @@ const sessionConfigs: BetterAuthOptions['session'] = {
 
 const verificationConfigs: BetterAuthOptions['verification'] = {
   modelName: 'verifications',
+};
+
+const emailAndPasswordConfigs: BetterAuthOptions['emailAndPassword'] = {
+  // Automatically sign in the user after sign up
+  autoSignIn: false, //defaults to true,
+  enabled: true,
+
+  requireEmailVerification: true,
+  // eslint-disable-next-line
+  sendResetPassword: async ({ user, url, token }, request) => {
+    // console.log('sendResetPassword called with:', { user, url, token });
+    return await sendPasswordResetEmail({
+      user: user,
+      url,
+      token,
+    });
+  },
+  resetPasswordTokenExpiresIn: 60 * 60, // 1 hour
+  revokeSessionsOnPasswordReset: true,
+  // eslint-disable-next-line
+  onPasswordReset(data, request) {
+    console.log('onPasswordReset', { data });
+    return Promise.resolve();
+  },
+  // disableSignUp: false,
+  // minPasswordLength: 8,
+  // maxPasswordLength: 128,
+  // password: {
+  //   hash(password) {
+  //     console.log('hashing password', { password });
+  //     return Promise.resolve(password); // TODO: implement hash
+  //   },
+  //   verify(data) {
+  //     console.log('verifying password', { data });
+  //     return Promise.resolve(true); // TODO: implement verify
+  //   },
+  // },
 };
 
 const emailVerificationConfigs: BetterAuthOptions['emailVerification'] = {
@@ -92,10 +133,7 @@ export const auth = betterAuth({
     schema: schemas,
     debugLogs: false,
   }),
-  emailAndPassword: {
-    autoSignIn: false, //defaults to true,
-    enabled: true,
-  },
+  emailAndPassword: emailAndPasswordConfigs,
   emailVerification: emailVerificationConfigs,
   socialProviders: {
     github: {
