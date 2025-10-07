@@ -1,0 +1,25 @@
+// export * from './account-configs';
+// export * from './api-error-configs';
+// export * from './database-configs';
+// export * from './email-and-password-configs';
+// export * from './email-verification-configs';
+// export * from './hooks-configs';
+// export * from './logger-configs';
+// export * from './plugins-configs';
+// export * from './session-configs';
+// export * from './social-providers-configs';
+// export * from './user-configs';
+// export * from './verification-configs';
+
+export { default as accountConfigs } from './account-configs';
+export { default as apiErrorConfigs } from './api-error-configs';
+export { default as databaseConfigs } from './database-configs';
+export { default as emailAndPasswordConfigs } from './email-and-password-configs';
+export { default as emailVerificationConfigs } from './email-verification-configs';
+export { default as hooksConfigs } from './hooks-configs';
+export { default as loggerConfigs } from './logger-configs';
+export { default as pluginsConfigs } from './plugins-configs';
+export { default as sessionConfigs } from './session-configs';
+export { default as socialProvidersConfigs } from './social-providers-configs';
+export { default as userConfigs } from './user-configs';
+export { default as verificationConfigs } from './verification-configs';
