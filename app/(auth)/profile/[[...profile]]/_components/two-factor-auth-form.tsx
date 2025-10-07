@@ -1,20 +1,13 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import { LockKeyholeIcon, LockKeyholeOpen } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
-import QRCode from 'react-qr-code';
 import { toast } from 'sonner';
-import z from 'zod';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -26,14 +19,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/lib/auth/auth-client';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { LockKeyholeIcon, LockKeyholeOpen } from 'lucide-react';
+import {
+  twoFactorAuthFormSchema,
+  TwoFactorAuthFormValues,
+} from '@/lib/zod/schemas';
+import { LazyQRCodeVerifyForm } from '.';
 
-const twoFactorAuthFormSchema = z.object({
-  password: z.string().min(1),
-});
-
-type TwoFactorAuthForm = z.infer<typeof twoFactorAuthFormSchema>;
 type TwoFactorData = {
   totpURI: string;
   backupCodes: string[];
@@ -53,12 +44,12 @@ export default function TwoFactorAuthForm(props: TwoFactorAuthFormProps) {
   const [isDisabledPending, startDisableTransition] = useTransition();
 
   const router = useRouter();
-  const form = useForm<TwoFactorAuthForm>({
+  const form = useForm<TwoFactorAuthFormValues>({
     resolver: zodResolver(twoFactorAuthFormSchema),
     defaultValues: { password: '' },
   });
 
-  function handleDisableTwoFactorAuth(data: TwoFactorAuthForm) {
+  function handleDisableTwoFactorAuth(data: TwoFactorAuthFormValues) {
     startDisableTransition(async () => {
       await authClient.twoFactor.disable(
         {
@@ -77,7 +68,7 @@ export default function TwoFactorAuthForm(props: TwoFactorAuthFormProps) {
     });
   }
 
-  function handleEnableTwoFactorAuth(data: TwoFactorAuthForm) {
+  function handleEnableTwoFactorAuth(data: TwoFactorAuthFormValues) {
     startEnableTransition(async () => {
       const result = await authClient.twoFactor.enable({
         password: data.password,
@@ -95,7 +86,7 @@ export default function TwoFactorAuthForm(props: TwoFactorAuthFormProps) {
 
   if (twoFactorData != null) {
     return (
-      <QRCodeVerify
+      <LazyQRCodeVerifyForm
         {...twoFactorData}
         onDone={() => {
           setTwoFactorData(null);
@@ -149,118 +140,5 @@ export default function TwoFactorAuthForm(props: TwoFactorAuthFormProps) {
         </Button>
       </form>
     </Form>
-  );
-}
-
-const qrSchema = z.object({
-  token: z.string().length(6),
-});
-
-type QrForm = z.infer<typeof qrSchema>;
-
-function QRCodeVerify({
-  totpURI,
-  backupCodes,
-  onDone,
-}: TwoFactorData & { onDone: () => void }) {
-  const [isPending, startTransition] = useTransition();
-  const [successfullyEnabled, setSuccessfullyEnabled] = useState(false);
-  const router = useRouter();
-  const form = useForm<QrForm>({
-    resolver: zodResolver(qrSchema),
-    defaultValues: { token: '' },
-  });
-
-  const { isSubmitting } = form.formState;
-
-  function handleQrCode(data: QrForm) {
-    startTransition(async () => {
-      await authClient.twoFactor.verifyTotp(
-        {
-          code: data.token,
-        },
-        {
-          onError: (error) => {
-            toast.error(error.error.message || 'Failed to verify code');
-          },
-          onSuccess: () => {
-            setSuccessfullyEnabled(true);
-            router.refresh();
-          },
-        }
-      );
-    });
-  }
-
-  if (successfullyEnabled) {
-    return (
-      <Card>
-        <CardDescription>
-          <p className='text-sm text-muted-foreground mb-2'>
-            Save these backup codes in a safe place. You can use them to access
-            your account.
-          </p>
-        </CardDescription>
-        <CardContent>
-          <div className='grid grid-cols-2 gap-2 mb-4'>
-            {backupCodes.map((code, index) => (
-              <div key={index} className='font-mono text-sm'>
-                {code}
-              </div>
-            ))}
-          </div>
-        </CardContent>
-
-        <CardFooter>
-          <CardAction>
-            <Button variant='outline' onClick={onDone}>
-              Done
-            </Button>
-          </CardAction>
-        </CardFooter>
-      </Card>
-    );
-  }
-
-  return (
-    <div className='space-y-4'>
-      <p className='text-muted-foreground'>
-        Scan this QR code with your authenticator app and enter the code below:
-      </p>
-
-      <Form {...form}>
-        <form className='space-y-4' onSubmit={form.handleSubmit(handleQrCode)}>
-          <FormField
-            control={form.control}
-            name='token'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Code</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <Button
-            type='submit'
-            disabled={isSubmitting || isPending}
-            className='w-full'>
-            {isSubmitting || isPending ? (
-              <span>
-                Verifying... <Spinner />
-              </span>
-            ) : (
-              'Submit Code'
-            )}
-          </Button>
-        </form>
-      </Form>
-      <div className='p-4 bg-white w-fit'>
-        <QRCode size={256} value={totpURI} />
-      </div>
-    </div>
   );
 }

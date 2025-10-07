@@ -1,6 +1,7 @@
 'use client';
 
 import { Skeleton } from '@/components/ui/skeleton';
+import { Spinner } from '@/components/ui/spinner';
 import dynamic from 'next/dynamic';
 
 export const LazyProfileUpdateForm = dynamic(
@@ -90,6 +91,18 @@ export const LazyTwoFactorAuthForm = dynamic(
           <Skeleton className={'h-8 w-full animate-pulse'} />
         </div>
         <Skeleton className={'h-9 w-full animate-pulse'} />
+      </div>
+    ),
+  }
+);
+
+export const LazyQRCodeVerifyForm = dynamic(
+  () => import('./qr-code-verify-form'),
+  {
+    ssr: false,
+    loading: () => (
+      <div>
+        <Spinner />
       </div>
     ),
   }

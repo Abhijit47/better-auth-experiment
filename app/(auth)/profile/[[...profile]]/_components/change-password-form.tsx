@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import z from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -20,22 +19,26 @@ import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/lib/auth/auth-client';
 import { cn } from '@/lib/utils';
+import {
+  ChangePasswordFormValues,
+  changePasswordSchema,
+} from '@/lib/zod/schemas';
 import { KeyRoundIcon } from 'lucide-react';
 
-const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1),
-  newPassword: z.string().min(6),
-  confirmNewPassword: z.string().min(6),
-  revokeOtherSessions: z.boolean(),
-});
+// const changePasswordSchema = z.object({
+//   currentPassword: z.string().min(1),
+//   newPassword: z.string().min(6),
+//   confirmNewPassword: z.string().min(6),
+//   revokeOtherSessions: z.boolean(),
+// });
 
-type ChangePasswordForm = z.infer<typeof changePasswordSchema>;
+// type ChangePasswordForm = z.infer<typeof changePasswordSchema>;
 
 export default function ChangePasswordForm() {
   const [isChangePasswordPending, startChangePasswordTransition] =
     useTransition();
 
-  const form = useForm<ChangePasswordForm>({
+  const form = useForm<ChangePasswordFormValues>({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: {
       currentPassword: '',
@@ -47,7 +50,7 @@ export default function ChangePasswordForm() {
 
   const { isSubmitting } = form.formState;
 
-  function handlePasswordChange(values: ChangePasswordForm) {
+  function handlePasswordChange(values: ChangePasswordFormValues) {
     if (values.newPassword !== values.confirmNewPassword) {
       toast.error('New passwords do not match');
       form.setError('confirmNewPassword', {

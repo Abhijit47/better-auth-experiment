@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
-import z from 'zod';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -18,16 +17,11 @@ import {
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/lib/auth/auth-client';
+import {
+  ProfileUpdateFormValues,
+  profileUpdateSchema,
+} from '@/lib/zod/schemas';
 import { toast } from 'sonner';
-
-const profileUpdateSchema = z.object({
-  name: z.string().min(1),
-  email: z.email(),
-  image: z.url(),
-  favoriteNumber: z.string(),
-});
-
-type ProfileUpdateFormData = z.infer<typeof profileUpdateSchema>;
 
 type UserWithAddlInfo = (typeof authClient.$Infer.Session)['user'];
 
@@ -40,7 +34,7 @@ export default function ProfileUpdateForm({ user }: ProfileUpdateFormProps) {
     useTransition();
   const router = useRouter();
 
-  const form = useForm<ProfileUpdateFormData>({
+  const form = useForm<ProfileUpdateFormValues>({
     resolver: zodResolver(profileUpdateSchema),
     defaultValues: {
       name: user.name,
@@ -52,7 +46,7 @@ export default function ProfileUpdateForm({ user }: ProfileUpdateFormProps) {
 
   const { isSubmitting } = form.formState;
 
-  function handleProfileUpdate(values: ProfileUpdateFormData) {
+  function handleProfileUpdate(values: ProfileUpdateFormValues) {
     startProfileUpdateTransition(async () => {
       const promises = [
         authClient.updateUser({
