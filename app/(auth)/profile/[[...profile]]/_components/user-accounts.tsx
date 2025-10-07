@@ -7,8 +7,8 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 import { Spinner } from '@/components/ui/spinner';
+import { SUPPORTED_OAUTH_PROVIDERS } from '@/constants/oauth-providers';
 import { auth } from '@/lib/auth/auth';
-import { SUPPORTED_OAUTH_PROVIDERS } from '@/lib/auth/oAuth-providers';
 import { IconBrandAuth0 } from '@tabler/icons-react';
 import UserAccountCard from './user-account-card';
 

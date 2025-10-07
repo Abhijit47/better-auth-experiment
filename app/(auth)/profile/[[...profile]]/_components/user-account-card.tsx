@@ -8,11 +8,11 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
-import { authClient } from '@/lib/auth/auth-client';
 import {
   SUPPORTED_OAUTH_PROVIDER_DETAILS,
   SupportedOAuthProvider,
-} from '@/lib/auth/oAuth-providers';
+} from '@/constants/oauth-providers';
+import { authClient } from '@/lib/auth/auth-client';
 import { Account } from './user-accounts';
 
 interface UserAccountCardProps {
