@@ -1,12 +1,13 @@
 'use server';
 
-import PasswordResetEmail from '@/emails/password-reset-email';
-import SignUpEmailVerification from '@/emails/verification-email';
-import WelcomeEmail from '@/emails/welcome-mail';
 import { render, toPlainText } from '@react-email/render';
 import { User } from 'better-auth';
 import nodemailer from 'nodemailer';
 import { Resend } from 'resend';
+
+import PasswordResetEmail from '@/emails/password-reset-email';
+import SignUpEmailVerification from '@/emails/verification-email';
+import WelcomeEmail from '@/emails/welcome-mail';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
