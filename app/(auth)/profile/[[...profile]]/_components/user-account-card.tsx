@@ -13,7 +13,7 @@ import {
   SupportedOAuthProvider,
 } from '@/constants/oauth-providers';
 import { authClient } from '@/lib/auth/auth-client';
-import { Account } from './user-accounts';
+import { type Account } from '@/types/better-auth-types';
 
 interface UserAccountCardProps {
   provider: string;

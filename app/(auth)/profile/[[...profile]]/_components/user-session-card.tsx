@@ -1,8 +1,11 @@
 'use client';
 
-import { Session } from 'better-auth';
+import { IconClock } from '@tabler/icons-react';
+import { type Session } from 'better-auth';
 import { Dot, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useTransition } from 'react';
+import { toast } from 'sonner';
 import { UAParser } from 'ua-parser-js';
 
 import { Badge } from '@/components/ui/badge';
@@ -17,9 +20,6 @@ import {
 } from '@/components/ui/item';
 import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/lib/auth/auth-client';
-import { IconClock } from '@tabler/icons-react';
-import { useTransition } from 'react';
-import { toast } from 'sonner';
 import UserSessionDeviceType from './user-session-device-type';
 
 interface UserSessionCardProps {

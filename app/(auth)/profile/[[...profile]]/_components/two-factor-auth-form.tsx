@@ -21,7 +21,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/lib/auth/auth-client';
 import {
   twoFactorAuthFormSchema,
-  TwoFactorAuthFormValues,
+  type TwoFactorAuthFormValues,
 } from '@/lib/zod/schemas';
 import { LazyQRCodeVerifyForm } from '.';
 

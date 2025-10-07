@@ -1,3 +1,5 @@
+import { IconBrandAuth0 } from '@tabler/icons-react';
+
 import {
   Empty,
   EmptyContent,
@@ -8,16 +10,11 @@ import {
 } from '@/components/ui/empty';
 import { Spinner } from '@/components/ui/spinner';
 import { SUPPORTED_OAUTH_PROVIDERS } from '@/constants/oauth-providers';
-import { auth } from '@/lib/auth/auth';
-import { IconBrandAuth0 } from '@tabler/icons-react';
+import { type Account } from '@/types/better-auth-types';
 import UserAccountCard from './user-account-card';
 
 // Alternatively, you can import the auth instance and use the type from there
 // import { type Account } from 'better-auth';
-
-export type Account = Awaited<
-  ReturnType<typeof auth.api.listUserAccounts>
->[number];
 
 export default function UserAccounts(props: { currentAccounts: Account[] }) {
   const { currentAccounts } = props;

@@ -1,12 +1,12 @@
 'use client';
 
+import { Mails } from 'lucide-react';
+import { useTransition } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/lib/auth/auth-client';
-import { Mails } from 'lucide-react';
-import { useTransition } from 'react';
 
 export default function SetPasswordResetButton({ email }: { email: string }) {
   const [isPending, startTransition] = useTransition();

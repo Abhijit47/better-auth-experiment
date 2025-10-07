@@ -1,12 +1,13 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
-import { authClient } from '@/lib/auth/auth-client';
 import { ShieldAlert } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
+
+import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
+import { authClient } from '@/lib/auth/auth-client';
 
 export default function RevokeOtherSessionsButton() {
   const [isPending, startTransition] = useTransition();

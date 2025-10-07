@@ -26,7 +26,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/lib/auth/auth-client';
 import {
   qrCodeVerifyFormSchema,
-  QrCodeVerifyFormValues,
+  type QrCodeVerifyFormValues,
 } from '@/lib/zod/schemas';
 
 interface QRCodeVerifyFormProps {

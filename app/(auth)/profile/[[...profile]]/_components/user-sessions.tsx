@@ -1,6 +1,7 @@
 'use client';
 
-import { Session } from 'better-auth';
+import { type Session } from 'better-auth';
+import { UserLock } from 'lucide-react';
 
 import {
   Empty,
@@ -11,7 +12,6 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 import { Spinner } from '@/components/ui/spinner';
-import { UserLock } from 'lucide-react';
 import RevokeOtherSessionsButton from './revoke-other-sessions-button';
 import UserSessionCard from './user-session-card';
 

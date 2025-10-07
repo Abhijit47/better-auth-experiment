@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -18,12 +19,10 @@ import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/lib/auth/auth-client';
 import {
-  ProfileUpdateFormValues,
+  type ProfileUpdateFormValues,
   profileUpdateSchema,
 } from '@/lib/zod/schemas';
-import { toast } from 'sonner';
-
-type UserWithAddlInfo = (typeof authClient.$Infer.Session)['user'];
+import { type UserWithAddlInfo } from '@/types/better-auth-types';
 
 interface ProfileUpdateFormProps {
   user: UserWithAddlInfo;

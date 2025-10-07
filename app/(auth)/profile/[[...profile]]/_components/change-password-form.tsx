@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { KeyRoundIcon } from 'lucide-react';
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -20,19 +21,9 @@ import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/lib/auth/auth-client';
 import { cn } from '@/lib/utils';
 import {
-  ChangePasswordFormValues,
+  type ChangePasswordFormValues,
   changePasswordSchema,
 } from '@/lib/zod/schemas';
-import { KeyRoundIcon } from 'lucide-react';
-
-// const changePasswordSchema = z.object({
-//   currentPassword: z.string().min(1),
-//   newPassword: z.string().min(6),
-//   confirmNewPassword: z.string().min(6),
-//   revokeOtherSessions: z.boolean(),
-// });
-
-// type ChangePasswordForm = z.infer<typeof changePasswordSchema>;
 
 export default function ChangePasswordForm() {
   const [isChangePasswordPending, startChangePasswordTransition] =
