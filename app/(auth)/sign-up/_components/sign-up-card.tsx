@@ -27,7 +27,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 // import { authClient } from '@/lib/auth/auth-client';
-import { authClient } from '@/lib/auth/auth-client';
+import { authClient } from '@/lib/auth/client/auth-client';
 import { cn } from '@/lib/utils';
 import { signUpFormSchema, SignUpFormValues } from '@/lib/zod/schemas';
 import { BetterFetchError } from 'better-auth/react';

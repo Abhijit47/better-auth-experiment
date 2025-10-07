@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { authClient } from '@/lib/auth/auth-client';
+import { authClient } from '@/lib/auth/client/auth-client';
 import {
   SignInWithEmailFormValues,
   signInWithEmailSchema,

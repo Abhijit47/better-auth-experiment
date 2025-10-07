@@ -12,7 +12,7 @@ import {
   SUPPORTED_OAUTH_PROVIDER_DETAILS,
   SupportedOAuthProvider,
 } from '@/constants/oauth-providers';
-import { authClient } from '@/lib/auth/auth-client';
+import { authClient } from '@/lib/auth/client/auth-client';
 import { type Account } from '@/types/better-auth-types';
 
 interface UserAccountCardProps {

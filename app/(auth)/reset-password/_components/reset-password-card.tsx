@@ -23,7 +23,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
-import { authClient } from '@/lib/auth/auth-client';
+import { authClient } from '@/lib/auth/client/auth-client';
 import {
   resetPasswordFormSchema,
   ResetPasswordFormValues,

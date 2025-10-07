@@ -6,7 +6,7 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { cache } from 'react';
 
-import { auth } from './auth';
+import { auth } from './server/auth';
 
 // type Session = typeof auth.$Infer.Session;
 

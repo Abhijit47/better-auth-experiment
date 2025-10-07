@@ -1,4 +1,4 @@
-import { auth } from '@/lib/auth/auth';
+import { auth } from '@/lib/auth/server/auth';
 import { headers } from 'next/headers';
 import { permanentRedirect } from 'next/navigation';
 import { SignInCard } from './_components/sign-in-card';

@@ -5,7 +5,7 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { cache } from 'react';
 
-import { auth } from './auth';
+import { auth } from './server/auth';
 
 export const getUserSessions = cache(async (pathName?: Route) => {
   const sessions = await auth.api.listSessions({ headers: await headers() });

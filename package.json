@@ -16,10 +16,10 @@
     "db:test": "npx tsx ./drizzle/upload.ts",
     "tunnel": "ngrok http 3000",
     "better-auth:init": "npx @better-auth/cli@latest init",
-    "better-auth:generate": "npx @better-auth/cli generate --config ./lib/auth/auth.ts --output ./drizzle/new-auth-schema.ts --yes",
-    "better-auth:migrate": "npx @better-auth/cli@latest migrate ./lib/auth/auth.ts --output ./drizzle/new-auth-schema.ts --yes",
-    "better-auth:info": "npx @better-auth/cli@latest info --config ./lib/auth/auth.ts --json",
-    "better-auth:secret": "npx @better-auth/cli@latest info --json > auth-info.json",
+    "better-auth:generate": "npx @better-auth/cli generate --config ./lib/auth/server/auth.ts --output ./drizzle/new-auth-schema.ts --yes",
+    "better-auth:migrate": "npx @better-auth/cli@latest migrate ./lib/auth/server/auth.ts --output ./drizzle/new-auth-schema.ts --yes",
+    "better-auth:info": "npx @better-auth/cli@latest info --config ./lib/auth/server/auth.ts --json",
+    "better-auth:secret": "npx @better-auth/cli@latest info --json > ./lib/auth/server/auth-info.json",
     "email:dev": "email dev"
   },
   "dependencies": {
