@@ -9,9 +9,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Spinner } from '@/components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
-import { LazyUserAccountDeletion } from './_components';
-import AccountsTab from './_components/account-tab';
+
 import ProfileCardHeading from './_components/profile-card-heading';
+
+import AccountsTab from './_components/account-tab';
+import DangerTab from './_components/danger-tab';
 import ProfileTab from './_components/profile-tab';
 import SecurityTab from './_components/security-tab';
 import SessionsTab from './_components/sessions-tab';
@@ -19,7 +21,7 @@ import SessionsTab from './_components/sessions-tab';
 export default function ProfilePage() {
   return (
     <section className={'py-8'}>
-      <Card className={'min-w-3xl mx-auto w-full relative'}>
+      <Card className={'max-w-3xl mx-auto relative gap-4 py-4'}>
         <Link
           href={'/'}
           className={cn(
@@ -73,7 +75,7 @@ export default function ProfilePage() {
             </TabsList>
 
             <TabsContent value='profile'>
-              <Card>
+              <Card className={'py-4 gap-4'}>
                 <CardContent>
                   <Suspense
                     fallback={
@@ -104,7 +106,7 @@ export default function ProfilePage() {
             </TabsContent>
 
             <TabsContent value='security'>
-              <Card>
+              <Card className={'py-4 gap-4'}>
                 <CardContent>
                   <Suspense
                     fallback={
@@ -157,7 +159,7 @@ export default function ProfilePage() {
             </TabsContent>
 
             <TabsContent value='sessions'>
-              <Card>
+              <Card className={'py-4 gap-4'}>
                 <CardContent>
                   <Suspense
                     fallback={
@@ -189,7 +191,7 @@ export default function ProfilePage() {
             </TabsContent>
 
             <TabsContent value='accounts'>
-              <Card>
+              <Card className={'py-4 gap-4'}>
                 <CardContent>
                   <Suspense fallback={<Spinner className={'size-4'} />}>
                     <AccountsTab />
@@ -199,9 +201,9 @@ export default function ProfilePage() {
             </TabsContent>
 
             <TabsContent value='danger'>
-              <Card>
+              <Card className={'py-4 gap-4'}>
                 <CardContent>
-                  <LazyUserAccountDeletion />
+                  <DangerTab />
                 </CardContent>
               </Card>
             </TabsContent>

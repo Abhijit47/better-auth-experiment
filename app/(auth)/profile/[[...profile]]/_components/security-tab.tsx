@@ -1,6 +1,5 @@
 import { getUserAccounts } from '@/lib/auth/get-user-accounts';
 import { requireAuth } from '@/lib/auth/require-auth';
-import UserSecurityForms from './user-security-forms';
 
 export default async function SecurityTab() {
   const [{ user }, accounts] = await Promise.all([
@@ -8,6 +7,8 @@ export default async function SecurityTab() {
     // auth.api.listPasskeys({ headers: await headers() }),
     getUserAccounts(),
   ]);
+
+  const UserSecurityForms = (await import('./user-security-forms')).default;
 
   const hasPasswordAccount = accounts.some(
     (a) => a.providerId === 'credential'

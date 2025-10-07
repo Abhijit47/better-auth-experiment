@@ -25,7 +25,7 @@ export default async function ProfileCardHeading() {
         </CardTitle>
         <CardDescription>{user.email}</CardDescription>
         <CardDescription>
-          <div className={'flex gap-2 text-sm text-muted-foreground'}>
+          <div className={'flex flex-wrap gap-2 text-sm text-muted-foreground'}>
             <span className={'flex items-center gap-2'}>
               Email Verified:{' '}
               {user.emailVerified ? (
@@ -34,7 +34,8 @@ export default async function ProfileCardHeading() {
                 <XCircle className={'size-4 stroke-destructive'} />
               )}
             </span>
-            |{' '}
+            <span className={'hidden md:block'}>| </span>
+
             <span className={'flex items-center gap-2'}>
               Updated At: {format(new Date(user.updatedAt), 'PPpp')}
             </span>
