@@ -23,7 +23,7 @@ export const navItems: NavItem<Route>[] = [
 ];
 
 const dynamicNavItems: NavItem<string>[] = [
-  { href: '/profile', label: 'John Profile' },
+  { href: '/profile', label: 'Profile' },
   { href: '/profile/jane', label: 'Jane Profile' },
 ];
 

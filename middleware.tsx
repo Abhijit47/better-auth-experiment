@@ -2,7 +2,7 @@
 //   // getCookieCache,
 //   // getCookies,
 // } from 'better-auth/cookies';
-import { getCookieCache } from 'better-auth/cookies';
+import { getCookieCache, getSessionCookie } from 'better-auth/cookies';
 import { MiddlewareConfig, NextRequest, NextResponse } from 'next/server';
 
 /*
@@ -37,8 +37,9 @@ event.waitUntil(
 
 export async function middleware(request: NextRequest) {
   const session = await getCookieCache(request);
-  // const sessionCookie = getSessionCookie(request);
-  if (!session?.user) {
+  // console.log('MIDDLEWARE session', session);
+  const sessionCookie = getSessionCookie(request);
+  if (!sessionCookie) {
     return NextResponse.redirect(new URL('/sign-in', request.url));
   }
   // if (!sessionCookie) {

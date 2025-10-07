@@ -1,9 +1,16 @@
 import { db } from '@/drizzle/db';
-import { betterAuth, BetterAuthOptions, User } from 'better-auth';
+import {
+  betterAuth,
+  type Adapter,
+  type BetterAuthOptions,
+  type BetterAuthPlugin,
+  type Logger,
+  type User,
+} from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { createAuthMiddleware } from 'better-auth/api';
 import { nextCookies } from 'better-auth/next-js';
-import { haveIBeenPwned, username } from 'better-auth/plugins';
+import { haveIBeenPwned, twoFactor, username } from 'better-auth/plugins';
 
 import * as schemas from '@/drizzle/schemas';
 
@@ -13,27 +20,52 @@ import {
   sendWelcomEmail,
 } from '../resend';
 
-const userConfigs: BetterAuthOptions['user'] = {
+const userConfigs = {
   modelName: 'users',
-};
-
-const accountConfigs: BetterAuthOptions['account'] = {
-  modelName: 'accounts',
-};
-
-const sessionConfigs: BetterAuthOptions['session'] = {
-  modelName: 'sessions',
-  cookieCache: {
+  changeEmail: {
     enabled: true,
-    maxAge: 60, // 1 minute
+    // eslint-disable-next-line
+    sendChangeEmailVerification: async (data, request) => {
+      // console.log('sendChangeEmailVerification called with:', { data });
+      return await sendVerificationEmail({
+        user: { ...data.user, email: data.newEmail },
+        url: data.url,
+        token: data.token,
+      });
+    },
   },
-};
+  // deleteUser: {},
+  // fields: {},
+  additionalFields: {
+    favoriteNumber: { type: 'number', required: true, defaultValue: 0 },
+  },
+} satisfies BetterAuthOptions['user'];
 
-const verificationConfigs: BetterAuthOptions['verification'] = {
+const accountConfigs = {
+  modelName: 'accounts',
+} satisfies BetterAuthOptions['account'];
+
+const sessionConfigs = {
+  modelName: 'sessions',
+  // fields: {},
+  // cookieCache: {
+  //   enabled: true,
+  //   maxAge: 60 * 60 * 24, // 24 hours
+  // },
+  // freshAge: 60 * 15, // 15 minutes
+  // updateAge: 60 * 60, // 1 hour
+  // expiresIn: 60 * 60 * 24 * 7, // 7 days
+  // preserveSessionInDatabase: true,
+  // storeSessionInDatabase: true,
+  // disableSessionRefresh: false,
+  // additionalFields: {},
+} satisfies BetterAuthOptions['session'];
+
+const verificationConfigs = {
   modelName: 'verifications',
-};
+} satisfies BetterAuthOptions['verification'];
 
-const emailAndPasswordConfigs: BetterAuthOptions['emailAndPassword'] = {
+const emailAndPasswordConfigs = {
   // Automatically sign in the user after sign up
   autoSignIn: false, //defaults to true,
   enabled: true,
@@ -58,6 +90,8 @@ const emailAndPasswordConfigs: BetterAuthOptions['emailAndPassword'] = {
   // disableSignUp: false,
   // minPasswordLength: 8,
   // maxPasswordLength: 128,
+
+  // **Custom password hashing and verification**
   // password: {
   //   hash(password) {
   //     console.log('hashing password', { password });
@@ -68,9 +102,9 @@ const emailAndPasswordConfigs: BetterAuthOptions['emailAndPassword'] = {
   //     return Promise.resolve(true); // TODO: implement verify
   //   },
   // },
-};
+} satisfies BetterAuthOptions['emailAndPassword'];
 
-const emailVerificationConfigs: BetterAuthOptions['emailVerification'] = {
+const emailVerificationConfigs = {
   autoSignInAfterVerification: true,
   // send verification email on sign up
   sendOnSignUp: true,
@@ -80,7 +114,7 @@ const emailVerificationConfigs: BetterAuthOptions['emailVerification'] = {
   // eslint-disable-next-line
   sendVerificationEmail: async ({ user, url, token }, request) => {
     // console.log('sendVerificationEmail called with:', { user, url, token });
-    return sendVerificationEmail({
+    return await sendVerificationEmail({
       user: user,
       url,
       token,
@@ -99,20 +133,53 @@ const emailVerificationConfigs: BetterAuthOptions['emailVerification'] = {
   //   console.log('afterEmailVerification:', user);
   //   return Promise.resolve();
   // },
-};
+} satisfies BetterAuthOptions['emailVerification'];
 
-const socialProvidersConfigs: BetterAuthOptions['socialProviders'] = {
+const socialProvidersConfigs = {
   github: {
     clientId: process.env.GITHUB_CLIENT_ID!,
     clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    mapProfileToUser(profile) {
+      return {
+        favoriteNumber: Number(profile.public_repos) || 0,
+      };
+    },
+    // redirectURI: "/profile",
   },
-};
+} satisfies BetterAuthOptions['socialProviders'];
 
-const pluginsConfigs: BetterAuthOptions['plugins'] = [
+const pluginsConfigs = [
   haveIBeenPwned({
     customPasswordCompromisedMessage: 'Please choose a more secure password.',
   }),
+  twoFactor({
+    schema: {
+      user: {
+        modelName: 'users',
+        fields: {
+          twoFactorEnabled: 'twoFactorEnabled',
+        },
+      },
+      twoFactor: {
+        modelName: 'two_factors',
+        fields: {
+          userId: 'userId',
+          secret: 'secret',
+          backupCodes: 'backupCodes',
+        },
+      },
+    },
+  }),
   username({
+    schema: {
+      user: {
+        modelName: 'users',
+        fields: {
+          username: 'username',
+          displayUsername: 'displayUsername',
+        },
+      },
+    },
     minUsernameLength: 5,
     maxUsernameLength: 50,
     usernameValidator: (username) => {
@@ -140,9 +207,9 @@ const pluginsConfigs: BetterAuthOptions['plugins'] = [
     },
   }),
   nextCookies(),
-];
+] satisfies BetterAuthPlugin[];
 
-const hooksConfigs: BetterAuthOptions['hooks'] = {
+const hooksConfigs = {
   after: createAuthMiddleware(async (ctx) => {
     if (ctx.path.startsWith('/sign-up')) {
       const body = ctx.body as User;
@@ -162,16 +229,52 @@ const hooksConfigs: BetterAuthOptions['hooks'] = {
       }
     }
   }),
-};
+} satisfies BetterAuthOptions['hooks'];
+
+const loggerConfigs = {
+  disableColors: false,
+  disabled: false,
+  level: 'info',
+  // log: (level, message, ...meta) => {
+  //   const logMessage = `[${level.toUpperCase()}] ${message} ${
+  //     meta ? JSON.stringify(meta) : ''
+  //     }`;
+  //   if (level === 'error') {
+  //     console.error(logMessage);
+  //   }
+  //   else if (level === 'warn') {
+  //     console.warn(logMessage);
+  //   }
+  //   else {
+  //     console.log(logMessage);
+  //   }
+  // },
+  log(level, message, ...args) {
+    const logMessage = `[${level.toUpperCase()}] ${message} ${
+      args ? JSON.stringify(args) : ''
+    }`;
+    if (level === 'error') {
+      console.error(logMessage);
+    } else if (level === 'warn') {
+      console.warn(logMessage);
+    } else {
+      console.log(logMessage);
+    }
+  },
+} satisfies Logger;
+
+const databaseConfigs = drizzleAdapter(db, {
+  provider: 'pg', // or "mysql", "sqlite",
+  transaction: true,
+  schema: schemas,
+  debugLogs: false,
+  // usePlural: false,
+  // camelCase: true,
+}) satisfies (options: BetterAuthOptions) => Adapter;
 
 export const auth = betterAuth({
-  database: drizzleAdapter(db, {
-    provider: 'pg', // or "mysql", "sqlite",
-    transaction: true,
-    usePlural: false,
-    schema: schemas,
-    debugLogs: false,
-  }),
+  appName: 'BetterAuth Demo',
+  database: databaseConfigs,
   emailAndPassword: emailAndPasswordConfigs,
   emailVerification: emailVerificationConfigs,
   socialProviders: socialProvidersConfigs,
@@ -181,4 +284,13 @@ export const auth = betterAuth({
   session: sessionConfigs,
   verification: verificationConfigs,
   hooks: hooksConfigs,
+  logger: loggerConfigs,
+  onAPIError: {
+    throw: true,
+    onError(error, ctx) {
+      console.error('API Error:', { error, ctx });
+      return Promise.reject(error);
+    },
+    errorURL: '/api/auth/my-error',
+  },
 });

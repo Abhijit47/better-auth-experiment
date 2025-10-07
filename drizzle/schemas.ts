@@ -1,4 +1,11 @@
-import { boolean, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
+import {
+  boolean,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+} from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
   id: text('id').primaryKey(),
@@ -11,8 +18,10 @@ export const users = pgTable('users', {
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
+  twoFactorEnabled: boolean('two_factor_enabled').default(false),
   username: text('username').unique(),
   displayUsername: text('display_username'),
+  favoriteNumber: integer('favorite_number').default(0).notNull(),
 });
 
 export const sessions = pgTable('sessions', {
@@ -61,3 +70,51 @@ export const verifications = pgTable('verifications', {
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
 });
+
+export const two_factors = pgTable('two_factors', {
+  id: text('id').primaryKey(),
+  secret: text('secret').notNull(),
+  backupCodes: text('backup_codes').notNull(),
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+});
+
+export const userRelations = relations(users, ({ many }) => ({
+  accounts: many(accounts, { relationName: 'UserToAccount' }),
+  sessions: many(sessions, { relationName: 'UserToSession' }),
+  verifications: many(verifications, { relationName: 'UserToVerification' }),
+  twoFactors: many(two_factors, { relationName: 'UserToTwoFactor' }),
+}));
+
+export const accountRelations = relations(accounts, ({ one }) => ({
+  user: one(users, {
+    relationName: 'UserToAccount',
+    fields: [accounts.userId],
+    references: [users.id],
+  }),
+}));
+
+export const sessionRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    relationName: 'UserToSession',
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
+}));
+
+export const verificationRelations = relations(verifications, ({ one }) => ({
+  user: one(users, {
+    relationName: 'UserToVerification',
+    fields: [verifications.id],
+    references: [users.id],
+  }),
+}));
+
+export const twoFactorRelations = relations(two_factors, ({ one }) => ({
+  user: one(users, {
+    relationName: 'UserToTwoFactor',
+    fields: [two_factors.userId],
+    references: [users.id],
+  }),
+}));

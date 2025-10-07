@@ -4,15 +4,23 @@
 import { Route } from 'next';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { auth } from './auth';
-type Session = typeof auth.$Infer.Session;
+import { cache } from 'react';
 
-export async function requireAuth(pathname: Route) {
-  const session: Session | null = await auth.api.getSession({
+import { auth } from './auth';
+
+// type Session = typeof auth.$Infer.Session;
+
+export const requireAuth = cache(async (pathname?: Route) => {
+  const userSession = await auth.api.getSession({
     headers: await headers(),
   });
-  if (!session) {
-    redirect(pathname);
+
+  if (!userSession) {
+    redirect(pathname ? pathname : '/sign-in');
   }
-  return session;
-}
+
+  const user = userSession.user;
+  const session = userSession.session;
+
+  return { user, session };
+});
