@@ -1,17 +1,27 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { requireAuth } from '@/lib/auth/require-auth';
+// import { requireAuth } from '@/lib/auth/require-auth';
 import { LazyBackupCodeForm, LazyTotpForm } from './_components';
 
 export default async function TwoFactorAuthenticationPage() {
-  await requireAuth();
+  // await requireAuth();
 
   return (
     <Card className='w-full max-w-sm mx-auto gap-4 py-4'>
       <CardHeader className='text-center'>
-        <CardTitle className='text-2xl font-bold'>
-          Two-Factor Authentication
-        </CardTitle>
+        <CardTitle className=''>Two-Factor Authentication</CardTitle>
+        <CardDescription>
+          <p className={'text-xs'}>
+            Please choose one of the methods below to complete your sign-in
+            process.
+          </p>
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue='totp'>
