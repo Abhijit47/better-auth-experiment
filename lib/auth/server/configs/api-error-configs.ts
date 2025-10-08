@@ -6,7 +6,7 @@ const apiErrorConfigs = {
     console.error('API Error:', { error, ctx });
     return Promise.reject(error);
   },
-  errorURL: '/api/auth/my-error',
+  errorURL: '/auth/my-error',
 } satisfies BetterAuthOptions['onAPIError'];
 
 export default apiErrorConfigs;
