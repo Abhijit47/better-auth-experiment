@@ -1,4 +1,12 @@
+import type { Metadata } from 'next';
 import Image from 'next/image';
+
+export const metadata: Metadata = {
+  title: {
+    absolute: 'Reset Password',
+  },
+  description: 'Set a new password for your Better Auth account',
+};
 
 export default function ResetPasswordLayout({
   children,

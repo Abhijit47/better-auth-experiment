@@ -6,11 +6,11 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-// import { requireAuth } from '@/lib/auth/require-auth';
+import { requireAuth } from '@/lib/auth/require-auth';
 import { LazyBackupCodeForm, LazyTotpForm } from './_components';
 
 export default async function TwoFactorAuthenticationPage() {
-  // await requireAuth();
+  await requireAuth();
 
   return (
     <Card className='w-full max-w-sm mx-auto gap-4 py-4'>

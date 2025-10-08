@@ -1,4 +1,12 @@
+import type { Metadata } from 'next';
 import Image from 'next/image';
+
+export const metadata: Metadata = {
+  title: {
+    absolute: 'Two Factor Authentication',
+  },
+  description: 'Secure your Better Auth account with two-factor authentication',
+};
 
 export default function TwoFactorLayout({
   children,

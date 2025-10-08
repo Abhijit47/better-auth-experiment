@@ -1,4 +1,12 @@
+import type { Metadata } from 'next';
 import Image from 'next/image';
+
+export const metadata: Metadata = {
+  title: {
+    absolute: 'Verify Email',
+  },
+  description: 'Verify your email address for your Better Auth account',
+};
 
 export default function VerifyEmailLayout({
   children,

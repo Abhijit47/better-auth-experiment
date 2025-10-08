@@ -1,4 +1,12 @@
+import type { Metadata } from 'next';
 import Image from 'next/image';
+
+export const metadata: Metadata = {
+  title: {
+    absolute: 'Sign Up Complete',
+  },
+  description: 'Complete your Better Auth account setup',
+};
 
 export default function SignUpCompleteLayout({
   children,
