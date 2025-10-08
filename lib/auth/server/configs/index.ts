@@ -21,5 +21,6 @@ export { default as loggerConfigs } from './logger-configs';
 export { default as pluginsConfigs } from './plugins-configs';
 export { default as sessionConfigs } from './session-configs';
 export { default as socialProvidersConfigs } from './social-providers-configs';
+export { default as telemetryConfigs } from './telemetry-configs';
 export { default as userConfigs } from './user-configs';
 export { default as verificationConfigs } from './verification-configs';

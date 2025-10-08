@@ -11,6 +11,7 @@ import {
   pluginsConfigs,
   sessionConfigs,
   socialProvidersConfigs,
+  telemetryConfigs,
   userConfigs,
   verificationConfigs,
 } from './configs';
@@ -29,4 +30,5 @@ export const auth = betterAuth({
   hooks: hooksConfigs,
   logger: loggerConfigs,
   onAPIError: apiErrorConfigs,
+  telemetry: telemetryConfigs,
 });
