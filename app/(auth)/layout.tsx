@@ -23,7 +23,8 @@ export const metadata: Metadata = {
   ],
   creator: 'Abhijit Karmakar',
   authors: [{ name: 'Abhijit Karmakar', url: 'https://abhijitkarmakar.com' }],
-  colorScheme: 'dark',
+  // colorScheme: 'dark',
+  // viewport: {},
   publisher: 'Abhijit Karmakar',
   formatDetection: {
     email: false,
