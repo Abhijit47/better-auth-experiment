@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
-import VerifyEmailCard from './_components/verify-email-card';
+
+import { LazyVerifyEmailCard } from './_components';
 
 type PageProps = {
   params: Promise<{ email?: string }>;
@@ -14,5 +15,5 @@ export default async function VerifyEmail(props: PageProps) {
 
   if (!email) return redirect('/sign-in');
 
-  return <VerifyEmailCard email={email} />;
+  return <LazyVerifyEmailCard email={email} />;
 }

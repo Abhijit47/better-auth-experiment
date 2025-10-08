@@ -1,5 +1,11 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -13,24 +19,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/lib/auth/client/auth-client';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import z from 'zod';
-
-const totpFormSchema = z.object({
-  code: z.string().min(1, 'Code is required'),
-  trustDevice: z.boolean(),
-});
-
-type TotpFormData = z.infer<typeof totpFormSchema>;
+import { totpFormSchema, TotpFormValues } from '@/lib/zod/schemas';
 
 export default function TotpForm() {
-  const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
-  const form = useForm<TotpFormData>({
+  const form = useForm<TotpFormValues>({
     resolver: zodResolver(totpFormSchema),
     defaultValues: {
       code: '',
@@ -41,34 +35,36 @@ export default function TotpForm() {
 
   const { isSubmitting } = form.formState;
 
-  function handleTotpVerification(data: TotpFormData) {
-    startTransition(async () => {
-      toast.promise(
-        authClient.twoFactor.verifyTotp({
-          code: data.code,
-          trustDevice: data.trustDevice,
-          fetchOptions: {
-            onError(context) {
-              throw new Error(
-                context.error.message || 'Failed to verify TOTP code'
-              );
-            },
-            onSuccess() {
-              // router.refresh();
-              router.push('/');
-            },
+  function handleTotpVerification(data: TotpFormValues) {
+    setIsLoading(true);
+    toast.promise(
+      authClient.twoFactor.verifyTotp({
+        code: data.code,
+        trustDevice: data.trustDevice,
+        fetchOptions: {
+          onError(context) {
+            throw new Error(
+              context.error.message || 'Failed to verify TOTP code'
+            );
           },
-        }),
-        {
-          loading: 'Verifying TOTP code...',
-          success: 'TOTP code verified successfully',
-          error: (err: Error) => err.message || 'Failed to verify TOTP code',
-        }
-      );
-
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      return;
-    });
+        },
+      }),
+      {
+        description: 'Verifying TOTP code...',
+        descriptionClassName: 'text-[10px]',
+        loading: 'Verifying TOTP code...',
+        // eslint-disable-next-line
+        success: ({ data }) => {
+          return 'TOTP code verified successfully';
+        },
+        error: (err: Error) => err.message || 'Failed to verify TOTP code',
+        finally: () => {
+          setIsLoading(false);
+          router.push('/');
+          router.refresh();
+        },
+      }
+    );
   }
 
   return (
@@ -111,9 +107,9 @@ export default function TotpForm() {
 
         <Button
           type='submit'
-          disabled={isPending || isSubmitting}
+          disabled={isLoading || isSubmitting}
           className='w-full'>
-          {isPending || isSubmitting ? (
+          {isLoading || isSubmitting ? (
             <span className={'inline-flex items-center gap-2'}>
               Verifying... <Spinner />
             </span>

@@ -1,5 +1,11 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -13,24 +19,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/lib/auth/client/auth-client';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import z from 'zod';
-
-const backupCodeFormSchema = z.object({
-  code: z.string().min(1, 'Code is required'),
-  trustDevice: z.boolean(),
-});
-
-type BackupCodeFormData = z.infer<typeof backupCodeFormSchema>;
+import { backupCodeFormSchema, BackupCodeFormValues } from '@/lib/zod/schemas';
 
 export default function BackupCodeForm() {
-  const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
-  const form = useForm<BackupCodeFormData>({
+  const form = useForm<BackupCodeFormValues>({
     resolver: zodResolver(backupCodeFormSchema),
     defaultValues: {
       code: '',
@@ -41,34 +35,37 @@ export default function BackupCodeForm() {
 
   const { isSubmitting } = form.formState;
 
-  function handleBackupCodeVerification(data: BackupCodeFormData) {
-    startTransition(async () => {
-      toast.promise(
-        authClient.twoFactor.verifyBackupCode({
-          code: data.code,
-          disableSession: false,
-          trustDevice: data.trustDevice,
-          fetchOptions: {
-            onError(context) {
-              throw new Error(
-                context.error.message || 'Failed to verify backup code'
-              );
-            },
-            onSuccess() {
-              // router.refresh();
-              router.push('/');
-            },
+  function handleBackupCodeVerification(data: BackupCodeFormValues) {
+    setIsLoading(true);
+    toast.promise(
+      authClient.twoFactor.verifyBackupCode({
+        code: data.code,
+        disableSession: false,
+        trustDevice: data.trustDevice,
+        fetchOptions: {
+          onError(context) {
+            throw new Error(
+              context.error.message || 'Failed to verify backup code'
+            );
           },
-        }),
-        {
-          loading: 'Verifying backup code...',
-          success: 'Backup code verified successfully!',
-          error: (err: Error) => err.message || 'Failed to verify backup code',
-        }
-      );
-
-      return;
-    });
+        },
+      }),
+      {
+        description: 'Verifying backup code...',
+        descriptionClassName: 'text-[10px]',
+        loading: 'Verifying backup code...',
+        // eslint-disable-next-line
+        success: ({ data }) => {
+          router.push('/');
+          return 'Backup code verified successfully';
+        },
+        error: (err: Error) => err.message || 'Failed to verify backup code',
+        finally: () => {
+          setIsLoading(false);
+          router.refresh();
+        },
+      }
+    );
   }
 
   return (
@@ -111,9 +108,9 @@ export default function BackupCodeForm() {
 
         <Button
           type='submit'
-          disabled={isPending || isSubmitting}
+          disabled={isLoading || isSubmitting}
           className='w-full'>
-          {isPending || isSubmitting ? (
+          {isLoading || isSubmitting ? (
             <span className={'inline-flex items-center gap-2'}>
               Verifying... <Spinner />
             </span>

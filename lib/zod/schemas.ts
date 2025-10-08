@@ -5,8 +5,14 @@ export const signUpFormSchema = z.object({
   email: z.email(),
   password: z.string().min(8).max(128),
   confirmPassword: z.string().min(8).max(128),
-  username: z.string().min(5).max(50),
-  displayUsername: z.string().min(5).max(50).optional(),
+  // username: z.string().min(5).max(50),
+  // displayUsername: z.string().min(5).max(50).optional(),
+});
+
+export const signUpCompleteSchema = z.object({
+  username: z.string().min(3).max(20),
+  displayUsername: z.string().optional(),
+  favoriteNumber: z.string().min(1),
 });
 
 export const signInWithEmailSchema = z.object({
@@ -24,10 +30,10 @@ export const forgotPasswordFormSchema = z.object({
 });
 
 export const resetPasswordFormSchema = z.object({
-  oldPassword: z
+  newPassword: z
     .string()
     .min(8, 'Old Password must be at least 8 characters long'),
-  newPassword: z
+  confirmNewPassword: z
     .string()
     .min(8, 'New Password must be at least 8 characters long'),
 });
@@ -54,7 +60,18 @@ export const qrCodeVerifyFormSchema = z.object({
   token: z.string().length(6),
 });
 
+export const backupCodeFormSchema = z.object({
+  code: z.string().min(1, 'Code is required'),
+  trustDevice: z.boolean(),
+});
+
+export const totpFormSchema = z.object({
+  code: z.string().min(1, 'Code is required'),
+  trustDevice: z.boolean(),
+});
+
 export type SignUpFormValues = z.infer<typeof signUpFormSchema>;
+export type SignUpCompleteFormValues = z.infer<typeof signUpCompleteSchema>;
 export type SignInWithEmailFormValues = z.infer<typeof signInWithEmailSchema>;
 export type SignInWithUsernameFormValues = z.infer<
   typeof signInWithUsernameSchema
@@ -66,3 +83,5 @@ export type ProfileUpdateFormValues = z.infer<typeof profileUpdateSchema>;
 export type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
 export type TwoFactorAuthFormValues = z.infer<typeof twoFactorAuthFormSchema>;
 export type QrCodeVerifyFormValues = z.infer<typeof qrCodeVerifyFormSchema>;
+export type BackupCodeFormValues = z.infer<typeof backupCodeFormSchema>;
+export type TotpFormValues = z.infer<typeof totpFormSchema>;

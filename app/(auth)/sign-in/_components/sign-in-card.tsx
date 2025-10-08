@@ -30,7 +30,7 @@ export function SignInCard() {
   const [tab, setTab] = useState<Tabs>('email');
 
   return (
-    <Card className='w-full max-w-sm py-4 gap-4'>
+    <Card className='w-full max-w-sm mx-auto gap-4 py-4'>
       <CardHeader>
         <CardTitle>Login to your account</CardTitle>
         <CardDescription>
