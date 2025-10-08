@@ -22,17 +22,22 @@ export default function UserAccountDeletion() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const token = authClient.useSession().data?.session.token;
+  // const token = authClient.useSession().data?.session.token;
+  const currenWindowClose = () => {
+    window.opener = null;
+    window.open('', '_self');
+    window.close();
+  };
 
   function handleDeleteAccount() {
     setIsLoading(true);
     toast.promise(
       authClient.deleteUser({
-        token: token,
+        // token: token,
         callbackURL: '/',
         fetchOptions: {
           onError: (error) => {
-            console.error('Error deleting account:', error.error);
+            console.error('Error deleting account:', error);
             throw new Error(error.error.message);
           },
         },
@@ -43,6 +48,7 @@ export default function UserAccountDeletion() {
         loading: 'Deleting account...',
         success: () => {
           setIsOpen(false);
+          currenWindowClose();
           return 'Account deleted successfully';
         },
         error: (error: Error) => error.message || 'Failed to delete account',

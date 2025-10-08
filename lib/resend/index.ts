@@ -5,6 +5,7 @@ import { User } from 'better-auth';
 import nodemailer from 'nodemailer';
 import { Resend } from 'resend';
 
+import DeleteAccountVerificationEmail from '@/emails/delete-account-verification';
 import PasswordResetEmail from '@/emails/password-reset-email';
 import SignUpEmailVerification from '@/emails/verification-email';
 import WelcomeEmail from '@/emails/welcome-mail';
@@ -26,6 +27,12 @@ export interface VerificationEmailProps {
 }
 
 export interface PasswordResetEmailProps {
+  user: User;
+  url: string;
+  token: string;
+}
+
+export interface DeleteAccountVerificationEmailProps {
   user: User;
   url: string;
   token: string;
@@ -159,5 +166,51 @@ export async function sendPasswordResetEmail(params: PasswordResetEmailProps) {
       throw new Error(error.message);
     }
     console.log('Password reset email sent', data);
+  }
+}
+
+export async function sendDeleteAccountVerificationEmail(
+  params: DeleteAccountVerificationEmailProps
+) {
+  const { user, url, token } = params;
+  const html = await render(DeleteAccountVerificationEmail({ ...params }));
+  const text = toPlainText(html);
+
+  if (isDev) {
+    // Create a transporter using MailHog's SMTP details
+    const transporter = nodemailer.createTransport({
+      host: 'localhost', // Or the IP address of your MailHog instance
+      port: 1025,
+      secure: false, // MailHog typically doesn't use TLS/SSL
+    });
+    try {
+      const info = await transporter.sendMail({
+        from: '"Better Auth Admin" <admin@better-auth.com>',
+        to: params.user.email,
+        subject: 'Confirm your account deletion',
+        text: text,
+        html: html,
+      });
+      console.log('Email sent: %s', info.messageId);
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+  } else {
+    const { data, error } = await resend.emails.send({
+      from: 'Admin <onboarding@resend.dev>',
+      to: params.user.email,
+      subject: 'Confirm your account deletion',
+      react: DeleteAccountVerificationEmail({
+        user: user,
+        url: url,
+        token: token,
+      }),
+      text: text,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+    console.log('Delete account verification email sent', data);
   }
 }

@@ -12,6 +12,7 @@ import {
   Tailwind,
   Text,
 } from '@react-email/components';
+import tailwingConfigs from './configs';
 
 export default function WelcomeEmail(props: WelcomeEmailProps) {
   const { name, userImage, email } = props;
@@ -21,8 +22,8 @@ export default function WelcomeEmail(props: WelcomeEmailProps) {
       <Head />
       <Preview>Welcome to our service!</Preview>
 
-      <Tailwind>
-        <Body className='mx-auto my-auto bg-foreground px-2 py-2 font-sans'>
+      <Tailwind config={tailwingConfigs}>
+        <Body className='mx-auto my-auto bg-background px-2 py-2 font-sans'>
           <Container className='mx-auto my-[40px] max-w-[465px] rounded border border-[#eaeaea] border-dashed p-[20px]'>
             <Section className='mt-[32px] p-0.5'>
               <Img
