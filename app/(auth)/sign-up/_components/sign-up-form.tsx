@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import InputWithPasswordVisible from '@/components/extends/input-with-password-visible';
 import { Button } from '@/components/ui/button';
 import { CardAction } from '@/components/ui/card';
 import {
@@ -156,7 +157,11 @@ export default function SignUpForm() {
                 </Link>
               </div>
               <FormControl>
-                <Input type='password' placeholder='*******' {...field} />
+                <InputWithPasswordVisible
+                  autoComplete='current-password webauthn'
+                  {...field}
+                />
+                {/* <Input type='password' placeholder='*******' {...field} /> */}
               </FormControl>
 
               <FormMessage />
@@ -172,7 +177,11 @@ export default function SignUpForm() {
             <FormItem>
               <FormLabel>Confirm Password</FormLabel>
               <FormControl>
-                <Input type='password' placeholder='*******' {...field} />
+                <InputWithPasswordVisible
+                  autoComplete='current-password webauthn'
+                  {...field}
+                />
+                {/* <Input type='password' placeholder='*******' {...field} /> */}
               </FormControl>
 
               <FormMessage />

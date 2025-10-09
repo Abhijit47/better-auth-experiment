@@ -6,6 +6,7 @@ import { Dispatch, SetStateAction } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import InputWithPasswordVisible from '@/components/extends/input-with-password-visible';
 import { Button } from '@/components/ui/button';
 import { CardAction } from '@/components/ui/card';
 import {
@@ -127,6 +128,7 @@ export default function SignWithEmailForm(props: SignWithEmailProps) {
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <TabsContent value='email' className='space-y-4'>
           <FormField
+            disabled={isLoading}
             control={form.control}
             name='email'
             render={({ field }) => (
@@ -134,7 +136,6 @@ export default function SignWithEmailForm(props: SignWithEmailProps) {
                 <FormLabel>Email</FormLabel>
                 <FormControl>
                   <Input
-                    disabled={isLoading}
                     type='email'
                     autoComplete='email webauthn'
                     placeholder='someone@example.com'
@@ -147,6 +148,7 @@ export default function SignWithEmailForm(props: SignWithEmailProps) {
             )}
           />
           <FormField
+            disabled={isLoading}
             control={form.control}
             name='password'
             render={({ field }) => (
@@ -160,13 +162,16 @@ export default function SignWithEmailForm(props: SignWithEmailProps) {
                   </Link>
                 </div>
                 <FormControl>
-                  <Input
-                    disabled={isLoading}
+                  <InputWithPasswordVisible
+                    autoComplete='current-password webauthn'
+                    {...field}
+                  />
+                  {/* <Input
                     type='password'
                     placeholder='*******'
                     autoComplete='current-password webauthn'
                     {...field}
-                  />
+                  /> */}
                 </FormControl>
 
                 <FormMessage className={'text-xs'} />

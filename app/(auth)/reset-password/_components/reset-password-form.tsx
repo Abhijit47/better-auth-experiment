@@ -12,8 +12,9 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { CardAction } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+// import { Input } from '@/components/ui/input';
 
+import InputWithPasswordVisible from '@/components/extends/input-with-password-visible';
 import {
   Form,
   FormControl,
@@ -113,12 +114,13 @@ export default function ResetPasswordForm({ token }: { token: string }) {
               <FormLabel htmlFor='new-password'>New Password</FormLabel>
 
               <FormControl>
-                <Input
+                <InputWithPasswordVisible {...field} />
+                {/* <Input
                   id='new-password'
                   type='password'
                   placeholder='*******'
                   {...field}
-                />
+                /> */}
               </FormControl>
 
               <FormMessage />
@@ -137,12 +139,13 @@ export default function ResetPasswordForm({ token }: { token: string }) {
               </FormLabel>
 
               <FormControl>
-                <Input
+                <InputWithPasswordVisible {...field} />
+                {/* <Input
                   id='confirm-new-password'
                   type='password'
                   placeholder='*******'
                   {...field}
-                />
+                /> */}
               </FormControl>
 
               <FormMessage />

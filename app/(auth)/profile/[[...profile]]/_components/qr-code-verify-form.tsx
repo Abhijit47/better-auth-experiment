@@ -20,7 +20,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+// import { Input } from '@/components/ui/input';
+import InputWithPasswordVisible from '@/components/extends/input-with-password-visible';
 import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/lib/auth/client';
 import {
@@ -107,7 +108,8 @@ export default function QRCodeVerifyForm(props: QRCodeVerifyFormProps) {
                 <FormItem>
                   <FormLabel>2FA Code</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <InputWithPasswordVisible {...field} />
+                    {/* <Input {...field} /> */}
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -131,7 +133,7 @@ export default function QRCodeVerifyForm(props: QRCodeVerifyFormProps) {
       </CardContent>
 
       <CardContent>
-        <div className='p-4 bg-card-foreground/70 rounded-lg w-full mx-auto'>
+        <div className='p-4 bg-card-foreground rounded-lg flex items-center justify-center w-full mx-auto'>
           <QRCode
             title='2FA QR Code'
             size={256}

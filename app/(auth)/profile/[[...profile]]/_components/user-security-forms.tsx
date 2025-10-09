@@ -14,7 +14,6 @@ import {
   LazyTwoFactorAuthForm,
 } from '.';
 import UserPasskeys from './user-passkeys';
-// import UserPasskeys from './passkey-form';
 
 interface UserSecurityFormsProps {
   hasPasswordAccount: boolean;

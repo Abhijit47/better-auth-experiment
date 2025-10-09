@@ -16,7 +16,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+// import { Input } from '@/components/ui/input';
+import InputWithPasswordVisible from '@/components/extends/input-with-password-visible';
 import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/lib/auth/client';
 import {
@@ -131,7 +132,8 @@ export default function TwoFactorAuthForm(props: TwoFactorAuthFormProps) {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type='password' {...field} />
+                <InputWithPasswordVisible {...field} />
+                {/* <Input type='password' {...field} /> */}
               </FormControl>
               <FormMessage />
             </FormItem>
