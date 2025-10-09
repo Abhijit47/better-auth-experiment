@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { auth } from '@/lib/auth/server/auth';
+import { auth } from '@/lib/auth/server';
 import { LazyBackupCodeForm, LazyTotpForm } from './_components';
 
 const getSession = cache(async () => {

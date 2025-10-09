@@ -5,7 +5,7 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { cache } from 'react';
 
-import { auth } from './server/auth';
+import { auth } from './server';
 
 export const getUserAccounts = cache(async (pathName?: Route) => {
   const accounts = await auth.api.listUserAccounts({

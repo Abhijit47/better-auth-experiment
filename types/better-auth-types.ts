@@ -2,7 +2,7 @@ import { BetterAuthClientPlugin, BetterAuthOptions } from 'better-auth';
 import { BetterFetchOption } from 'better-auth/react';
 
 import { authClient } from '@/lib/auth/client';
-import { auth } from '@/lib/auth/server/auth';
+import { auth } from '@/lib/auth/server';
 
 export type Account = Awaited<
   ReturnType<typeof auth.api.listUserAccounts>

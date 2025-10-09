@@ -6,7 +6,7 @@ import {
   usernameClient,
 } from 'better-auth/client/plugins';
 
-import { auth } from '../server/auth';
+import { auth } from '../server';
 
 const clientPlugins = [
   inferAdditionalFields<typeof auth>(),
