@@ -5,7 +5,7 @@ import { Dispatch, SetStateAction, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
-import { authClient } from '@/lib/auth/client/auth-client';
+import { authClient } from '@/lib/auth/client';
 import { LucideKeySquare } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';

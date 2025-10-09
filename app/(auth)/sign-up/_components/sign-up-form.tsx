@@ -19,7 +19,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
-import { authClient } from '@/lib/auth/client/auth-client';
+import { authClient } from '@/lib/auth/client';
 import { signUpFormSchema, SignUpFormValues } from '@/lib/zod/schemas';
 
 export default function SignUpForm() {

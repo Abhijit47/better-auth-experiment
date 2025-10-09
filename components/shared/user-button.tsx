@@ -1,18 +1,19 @@
 'use client';
 
+import { Loader } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
+
 import { Button, buttonVariants } from '@/components/ui/button';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { authClient } from '@/lib/auth/client/auth-client';
+import { authClient } from '@/lib/auth/client';
 import { cn } from '@/lib/utils';
-import { Loader } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
 import { Separator } from '../ui/separator';
 
 export default function UserButton() {

@@ -19,7 +19,7 @@ import {
   ItemTitle,
 } from '@/components/ui/item';
 import { Spinner } from '@/components/ui/spinner';
-import { authClient } from '@/lib/auth/client/auth-client';
+import { authClient } from '@/lib/auth/client';
 import UserSessionDeviceType from './user-session-device-type';
 
 interface UserSessionCardProps {
