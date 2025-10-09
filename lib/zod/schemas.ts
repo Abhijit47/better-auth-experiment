@@ -68,8 +68,13 @@ export const totpFormSchema = z.object({
   trustDevice: z.boolean(),
 });
 
-export const passkeyFormSchema = z.object({
+export const passkeyNewFormSchema = z.object({
   name: z.string().min(1),
+});
+
+export const passkeyUpdateFormSchema = z.object({
+  name: z.string().min(1),
+  id: z.string().min(1),
 });
 
 export type SignUpFormValues = z.infer<typeof signUpFormSchema>;
@@ -87,4 +92,5 @@ export type TwoFactorAuthFormValues = z.infer<typeof twoFactorAuthFormSchema>;
 export type QrCodeVerifyFormValues = z.infer<typeof qrCodeVerifyFormSchema>;
 export type BackupCodeFormValues = z.infer<typeof backupCodeFormSchema>;
 export type TotpFormValues = z.infer<typeof totpFormSchema>;
-export type PasskeyFormValues = z.infer<typeof passkeyFormSchema>;
+export type PasskeyNewFormValues = z.infer<typeof passkeyNewFormSchema>;
+export type PasskeyUpdateFormValues = z.infer<typeof passkeyUpdateFormSchema>;

@@ -1,20 +1,26 @@
 'use client';
 
 import { Trash2 } from 'lucide-react';
-
-import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
-import { authClient } from '@/lib/auth/client';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { Button } from '@/components/ui/button';
+import {
+  ButtonGroup,
+  ButtonGroupSeparator,
+} from '@/components/ui/button-group';
+import { Spinner } from '@/components/ui/spinner';
+import { authClient } from '@/lib/auth/client';
+import { LazyPasskeyUpdateForm } from '.';
+
 interface PasskeyDeleteButtonProps {
   passkeyId: string;
+  name: string;
 }
 
 export default function PasskeyDeleteButton(props: PasskeyDeleteButtonProps) {
-  const { passkeyId } = props;
+  const { passkeyId, name } = props;
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -46,11 +52,16 @@ export default function PasskeyDeleteButton(props: PasskeyDeleteButtonProps) {
   }
 
   return (
-    <Button
-      variant='destructive'
-      size='icon-sm'
-      onClick={() => handleDeletePasskey(passkeyId)}>
-      {isLoading ? <Spinner /> : <Trash2 className={'size-4'} />}
-    </Button>
+    <ButtonGroup>
+      <LazyPasskeyUpdateForm name={name} id={passkeyId} />
+      <ButtonGroupSeparator decorative />
+      <Button
+        disabled={isLoading}
+        variant='destructive'
+        size='icon-sm'
+        onClick={() => handleDeletePasskey(passkeyId)}>
+        {isLoading ? <Spinner /> : <Trash2 className={'size-4'} />}
+      </Button>
+    </ButtonGroup>
   );
 }

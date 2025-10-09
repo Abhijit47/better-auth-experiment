@@ -21,7 +21,10 @@ export default function UserPasskeyCard({ passkeys }: { passkeys: Passkey[] }) {
               <CardDescription>{passkey.deviceType}</CardDescription>
             </div>
             <CardAction>
-              <LazyPasskeyDeleteButton passkeyId={passkey.id} />
+              <LazyPasskeyDeleteButton
+                passkeyId={passkey.id}
+                name={passkey.name ?? 'N/A'}
+              />
             </CardAction>
           </CardHeader>
           <CardContent>

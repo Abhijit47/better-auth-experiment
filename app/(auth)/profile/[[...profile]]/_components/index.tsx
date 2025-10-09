@@ -120,7 +120,7 @@ export const LazyUserAccountDeletion = dynamic(
   }
 );
 
-export const LazyPasskeyForm = dynamic(() => import('./passkey-form'), {
+export const LazyPasskeyNewForm = dynamic(() => import('./passkey-new-form'), {
   ssr: false,
   loading: () => (
     <div>
@@ -128,6 +128,18 @@ export const LazyPasskeyForm = dynamic(() => import('./passkey-form'), {
     </div>
   ),
 });
+
+export const LazyPasskeyUpdateForm = dynamic(
+  () => import('./passkey-update-form'),
+  {
+    ssr: false,
+    loading: () => (
+      <div>
+        <Skeleton className={'h-9 w-full animate-pulse'} />
+      </div>
+    ),
+  }
+);
 
 export const LazyPasskeyDeleteButton = dynamic(
   () => import('./passkey-delete-button'),

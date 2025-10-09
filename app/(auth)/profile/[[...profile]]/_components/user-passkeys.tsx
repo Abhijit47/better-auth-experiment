@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/empty';
 
 import { IconPasswordFingerprint } from '@tabler/icons-react';
-import { LazyPasskeyForm } from '.';
+import { LazyPasskeyNewForm } from '.';
 import UserPasskeyCard from './user-passkey-card';
 
 export default function UserPasskeys({ passkeys }: { passkeys: Passkey[] }) {
@@ -28,13 +28,13 @@ export default function UserPasskeys({ passkeys }: { passkeys: Passkey[] }) {
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
-            <LazyPasskeyForm />
+            <LazyPasskeyNewForm />
           </EmptyContent>
         </Empty>
       ) : (
         <>
           <UserPasskeyCard passkeys={passkeys} />
-          <LazyPasskeyForm />
+          <LazyPasskeyNewForm />
         </>
       )}
     </div>
