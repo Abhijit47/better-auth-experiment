@@ -1,3 +1,7 @@
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { cache } from 'react';
+
 import {
   Card,
   CardContent,
@@ -6,11 +10,17 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { requireAuth } from '@/lib/auth/require-auth';
+import { auth } from '@/lib/auth/server/auth';
 import { LazyBackupCodeForm, LazyTotpForm } from './_components';
 
+const getSession = cache(async () => {
+  'use server';
+  return await auth.api.getSession({ headers: await headers() });
+});
+
 export default async function TwoFactorAuthenticationPage() {
-  await requireAuth();
+  const session = await getSession();
+  if (session != null) return redirect('/');
 
   return (
     <Card className='w-full max-w-sm mx-auto gap-4 py-4'>

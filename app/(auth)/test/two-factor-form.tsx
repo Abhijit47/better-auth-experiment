@@ -1,5 +1,7 @@
 'use client';
 
+'use client';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LockKeyholeIcon, LockKeyholeOpen } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -23,7 +25,7 @@ import {
   twoFactorAuthFormSchema,
   type TwoFactorAuthFormValues,
 } from '@/lib/zod/schemas';
-import { LazyQRCodeVerifyForm } from '.';
+import QRCodeForm from './qr-code-verify-form';
 
 type TwoFactorData = {
   totpURI: string;
@@ -34,7 +36,7 @@ interface TwoFactorAuthFormProps {
   isEnabled: boolean;
 }
 
-export default function TwoFactorAuthForm(props: TwoFactorAuthFormProps) {
+export default function TwoFactorForm(props: TwoFactorAuthFormProps) {
   const { isEnabled } = props;
 
   const [twoFactorData, setTwoFactorData] = useState<TwoFactorData | null>(
@@ -46,7 +48,7 @@ export default function TwoFactorAuthForm(props: TwoFactorAuthFormProps) {
   const router = useRouter();
   const form = useForm<TwoFactorAuthFormValues>({
     resolver: zodResolver(twoFactorAuthFormSchema),
-    defaultValues: { password: '' },
+    defaultValues: { password: 'Admin123852456' },
   });
 
   function handleDisableTwoFactorAuth(data: TwoFactorAuthFormValues) {
@@ -85,7 +87,6 @@ export default function TwoFactorAuthForm(props: TwoFactorAuthFormProps) {
         issuer: 'BetterAuth Demo',
         fetchOptions: {
           onError(ctx) {
-            console.error(ctx.error);
             throw new Error(ctx.error.message || 'Failed to enable 2FA');
           },
         },
@@ -107,7 +108,7 @@ export default function TwoFactorAuthForm(props: TwoFactorAuthFormProps) {
 
   if (twoFactorData != null) {
     return (
-      <LazyQRCodeVerifyForm
+      <QRCodeForm
         {...twoFactorData}
         onDone={() => {
           setTwoFactorData(null);

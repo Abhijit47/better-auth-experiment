@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { type BetterFetchError } from 'better-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Dispatch, SetStateAction } from 'react';
@@ -32,7 +33,6 @@ interface SignWithEmailProps {
 
 export default function SignWithEmailForm(props: SignWithEmailProps) {
   const { isLoading, onLoading } = props;
-
   const router = useRouter();
 
   const form = useForm<SignInWithEmailFormValues>({
@@ -56,12 +56,21 @@ export default function SignWithEmailForm(props: SignWithEmailProps) {
         // callbackURL: '/',
         rememberMe: true,
         fetchOptions: {
-          onError(context) {
-            form.setError('email', {
-              type: 'value',
-              message: context.error.message || 'Failed to sign in user',
-            });
-            throw new Error(context.error.message || 'Failed to sign in user');
+          onError(ctx) {
+            // console.log('Error signing in:', ctx);
+            const error = ctx.error as BetterFetchError & { code: string };
+            if (error.code === 'EMAIL_NOT_VERIFIED') {
+              const email = encodeURIComponent(loginWithEmail.email);
+              form.setError('email', {
+                type: 'value',
+                message: ctx.error.message || 'Failed to sign in user',
+              });
+              setTimeout(() => {
+                router.push(`/verify-email?email=${email}`);
+                router.refresh();
+              }, 2000);
+            }
+            throw new Error(ctx.error.message || 'Failed to sign in user');
           },
         },
       }),
@@ -70,12 +79,21 @@ export default function SignWithEmailForm(props: SignWithEmailProps) {
         descriptionClassName: 'text-[10px]',
         loading: 'Logging your account...',
         success: (data) => {
-          if (data.error === null && !data.data.user.emailVerified) {
+          // eslint-disable-next-line
+          // @ts-ignore
+          if (data.error === null && data.data.twoFactorRedirect) {
+            router.push('/two-factor'); // Redirect to the 2FA page
+            router.refresh();
+            return 'Please complete the two-factor authentication to proceed.';
+          } else if (data.error === null && !data.data.user.emailVerified) {
             const encodedEmail = encodeURIComponent(loginWithEmail.email);
-            router.push(`/verify-email?email=${encodedEmail}`); // Redirect to the email verification page
+            // Redirect to the email verification page
+            router.push(`/verify-email?email=${encodedEmail}`);
+            router.refresh();
             return 'A verification email has been sent to your email address.';
           } else {
-            router.push('/'); // Redirect to the homepage or dashboard after successful sign-in
+            // Redirect to the homepage or dashboard after successful sign-in
+            router.push('/');
             router.refresh();
           }
           return 'Successfully signed in!';

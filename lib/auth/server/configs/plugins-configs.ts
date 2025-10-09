@@ -7,20 +7,21 @@ const pluginsConfigs = [
     customPasswordCompromisedMessage: 'Please choose a more secure password.',
   }),
   twoFactor({
+    issuer: 'BetterAuth Demo',
     schema: {
       user: {
         modelName: 'users',
-        fields: {
-          twoFactorEnabled: 'twoFactorEnabled',
-        },
+        // fields: {
+        //   twoFactorEnabled: 'twoFactorEnabled',
+        // },
       },
       twoFactor: {
         modelName: 'two_factors',
-        fields: {
-          userId: 'userId',
-          secret: 'secret',
-          backupCodes: 'backupCodes',
-        },
+        // fields: {
+        //   userId: 'userId',
+        //   secret: 'secret',
+        //   backupCodes: 'backupCodes',
+        // },
       },
     },
   }),

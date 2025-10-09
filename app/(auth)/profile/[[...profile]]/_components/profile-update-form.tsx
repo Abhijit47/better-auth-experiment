@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -29,8 +29,7 @@ interface ProfileUpdateFormProps {
 }
 
 export default function ProfileUpdateForm({ user }: ProfileUpdateFormProps) {
-  const [isProfileUpdatePending, startProfileUpdateTransition] =
-    useTransition();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
 
   const form = useForm<ProfileUpdateFormValues>({
@@ -46,78 +45,79 @@ export default function ProfileUpdateForm({ user }: ProfileUpdateFormProps) {
   const { isSubmitting } = form.formState;
 
   function handleProfileUpdate(values: ProfileUpdateFormValues) {
-    startProfileUpdateTransition(async () => {
-      const promises = [
-        authClient.updateUser({
-          name: values.name,
-          favoriteNumber: Number(values.favoriteNumber),
-          image: values.image,
-        }),
-      ];
+    setIsLoading(true);
 
-      if (values.email !== user.email) {
-        promises.push(
-          authClient.changeEmail({
-            newEmail: values.email,
-            callbackURL: '/profile',
-          })
-        );
-      }
+    const promises = [
+      authClient.updateUser({
+        name: values.name,
+        favoriteNumber: Number(values.favoriteNumber),
+        image: values.image,
+      }),
+    ];
 
-      toast.promise(Promise.all(promises), {
-        description: 'Profile update in progress',
-        loading: 'Updating profile...',
-        success: (data) => {
-          const updateUserResult = data[0];
-          // const changeEmailResult = data[1] ?? { error: false };
-          const changeEmailResult = data[1];
-          if (updateUserResult.error) {
+    if (values.email !== user.email) {
+      promises.push(
+        authClient.changeEmail({
+          newEmail: values.email,
+          callbackURL: '/profile',
+        })
+      );
+    }
+
+    toast.promise(Promise.all(promises), {
+      description: 'Profile update in progress',
+      descriptionClassName: 'text-[10px]',
+      loading: 'Updating profile...',
+      success: (data) => {
+        const updateUserResult = data[0];
+        const changeEmailResult = data[1] ?? { error: false };
+        // const changeEmailResult = data[1];
+        if (updateUserResult.error) {
+          router.refresh();
+          throw new Error(
+            updateUserResult.error.message || 'Failed to update profile.'
+          );
+        } else if (changeEmailResult.error) {
+          router.refresh();
+          throw new Error(
+            changeEmailResult.error.message || 'Failed to change email.'
+          );
+        } else {
+          if (values.email !== user.email) {
             router.refresh();
-            throw new Error(
-              updateUserResult.error.message || 'Failed to update profile.'
-            );
-          } else if (changeEmailResult.error) {
-            router.refresh();
-            throw new Error(
-              changeEmailResult.error.message || 'Failed to change email.'
-            );
+            return 'Please check your new email to verify it.';
           } else {
-            if (values.email !== user.email) {
-              router.refresh();
-              return 'Please check your new email to verify it.';
-            } else {
-              router.refresh();
-              return 'Profile updated successfully!';
-            }
+            router.refresh();
+            return 'Profile updated successfully!';
           }
-        },
-        error: (err: Error) => err.message || 'Failed to update profile.',
-        duration: 5000,
-      });
-
-      // const res = await Promise.all(promises);
-      // const updateUserResult = res[0];
-      // const changeEmailResult = res[1] ?? { error: false };
-
-      // console.log({ updateUserResult, changeEmailResult });
-
-      // if (updateUserResult.error) {
-      //   toast.error(
-      //     updateUserResult.error.message || 'Failed to update profile.'
-      //   );
-      // } else if (changeEmailResult.error) {
-      //   toast.error(
-      //     changeEmailResult.error.message || 'Failed to change email.'
-      //   );
-      // } else {
-      //   if (values.email !== user.email) {
-      //     toast.success('Please check your new email to verify it.');
-      //   } else {
-      //     toast.success('Profile updated successfully!');
-      //   }
-      //   router.refresh();
-      // }
+        }
+      },
+      error: (err: Error) => err.message || 'Failed to update profile.',
+      finally: () => setIsLoading(false),
     });
+
+    // const res = await Promise.all(promises);
+    // const updateUserResult = res[0];
+    // const changeEmailResult = res[1] ?? { error: false };
+
+    // console.log({ updateUserResult, changeEmailResult });
+
+    // if (updateUserResult.error) {
+    //   toast.error(
+    //     updateUserResult.error.message || 'Failed to update profile.'
+    //   );
+    // } else if (changeEmailResult.error) {
+    //   toast.error(
+    //     changeEmailResult.error.message || 'Failed to change email.'
+    //   );
+    // } else {
+    //   if (values.email !== user.email) {
+    //     toast.success('Please check your new email to verify it.');
+    //   } else {
+    //     toast.success('Profile updated successfully!');
+    //   }
+    //   router.refresh();
+    // }
   }
 
   return (
@@ -183,9 +183,9 @@ export default function ProfileUpdateForm({ user }: ProfileUpdateFormProps) {
 
         <Button
           type='submit'
-          disabled={isSubmitting || isProfileUpdatePending}
+          disabled={isSubmitting || isLoading}
           className='w-full'>
-          {isSubmitting || isProfileUpdatePending ? (
+          {isSubmitting || isLoading ? (
             <span className={'flex items-center gap-2'}>
               Updating...
               <Spinner />

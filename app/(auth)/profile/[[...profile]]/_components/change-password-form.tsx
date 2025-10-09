@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { KeyRoundIcon } from 'lucide-react';
-import { useTransition } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -26,8 +26,7 @@ import {
 } from '@/lib/zod/schemas';
 
 export default function ChangePasswordForm() {
-  const [isChangePasswordPending, startChangePasswordTransition] =
-    useTransition();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const form = useForm<ChangePasswordFormValues>({
     resolver: zodResolver(changePasswordSchema),
@@ -51,37 +50,32 @@ export default function ChangePasswordForm() {
       return;
     }
 
-    startChangePasswordTransition(() => {
-      toast.promise(
-        authClient.changePassword(
-          {
-            currentPassword: values.currentPassword,
-            newPassword: values.newPassword,
-            revokeOtherSessions: values.revokeOtherSessions,
-          },
-          {
-            onError: (error) => {
-              form.reset();
-              throw new Error(
-                error.error.message || 'Failed to change password'
-              );
-            },
-          }
-        ),
-        {
-          description: 'Please wait while we update your password.',
-          loading: 'Changing password...',
-          // eslint-disable-next-line
-          success: (data) => {
+    setIsLoading(true);
+    toast.promise(
+      authClient.changePassword({
+        currentPassword: values.currentPassword,
+        newPassword: values.newPassword,
+        revokeOtherSessions: values.revokeOtherSessions,
+        fetchOptions: {
+          onError: (error) => {
             form.reset();
-            return 'Password changed successfully';
+            throw new Error(error.error.message || 'Failed to change password');
           },
-          error: (err: Error) => err.message || 'Failed to change password',
-          dismissible: true,
-          richColors: true,
-        }
-      );
-    });
+        },
+      }),
+      {
+        description: 'Please wait while we update your password.',
+        descriptionClassName: 'text-[10px]',
+        loading: 'Changing password...',
+        // eslint-disable-next-line
+        success: (data) => {
+          form.reset();
+          return 'Password changed successfully';
+        },
+        error: (err: Error) => err.message || 'Failed to change password',
+        finally: () => setIsLoading(false),
+      }
+    );
   }
 
   return (
@@ -149,7 +143,7 @@ export default function ChangePasswordForm() {
         />
 
         <Button type='submit' disabled={isSubmitting} className='w-full'>
-          {isChangePasswordPending || isSubmitting ? (
+          {isLoading || isSubmitting ? (
             <span className={cn('inline-flex items-center gap-2')}>
               Changing Password... <Spinner />
             </span>

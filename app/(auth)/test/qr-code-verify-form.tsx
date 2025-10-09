@@ -27,7 +27,7 @@ import {
   qrCodeVerifyFormSchema,
   type QrCodeVerifyFormValues,
 } from '@/lib/zod/schemas';
-import BackupCodesCard from './backup-codes-card';
+import BakupCodes from './bakup-codes';
 
 interface QRCodeVerifyFormProps {
   totpURI: string;
@@ -35,7 +35,7 @@ interface QRCodeVerifyFormProps {
   onDone: () => void;
 }
 
-export default function QRCodeVerifyForm(props: QRCodeVerifyFormProps) {
+export default function QRCodeForm(props: QRCodeVerifyFormProps) {
   const { totpURI, backupCodes, onDone } = props;
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -65,24 +65,23 @@ export default function QRCodeVerifyForm(props: QRCodeVerifyFormProps) {
         description: 'Please wait...',
         descriptionClassName: 'text-[10px]',
         loading: 'Verifying code...',
+        // eslint-disable-next-line
         success: (ctx) => {
-          console.log({ ctx });
           setSuccessfullyEnabled(true);
+          form.reset();
           router.refresh();
           return '2FA enabled successfully!';
         },
         error: (error: Error) => error.message || 'Failed to verify code',
         finally: () => {
           setIsLoading(false);
-          // setSuccessfullyEnabled(true);
-          // router.refresh();
         },
       }
     );
   }
 
   if (successfullyEnabled) {
-    return <BackupCodesCard backupCodes={backupCodes} onDone={onDone} />;
+    return <BakupCodes backupCodes={backupCodes} onDone={onDone} />;
   }
 
   return (
@@ -131,15 +130,8 @@ export default function QRCodeVerifyForm(props: QRCodeVerifyFormProps) {
       </CardContent>
 
       <CardContent>
-        <div className='p-4 bg-card-foreground/70 rounded-lg w-full mx-auto'>
-          <QRCode
-            title='2FA QR Code'
-            size={256}
-            value={totpURI}
-            // bgColor='WindowFrame'
-            // fgColor='Highlight'
-            level='H'
-          />
+        <div className='p-4 bg-card-foreground/70 rounded-lg flex items-center justify-center'>
+          <QRCode title='2FA QR Code' size={256} value={totpURI} level='H' />
         </div>
       </CardContent>
     </Card>

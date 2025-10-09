@@ -62,6 +62,7 @@ export default function SignUpForm() {
         image: imageUrl,
         fetchOptions: {
           onError: (ctx) => {
+            console.log('Error signing up:', ctx.error);
             const error = ctx.error as BetterFetchError & { code: string };
             if (error.code === 'PASSWORD_COMPROMISED') {
               form.setError('password', {

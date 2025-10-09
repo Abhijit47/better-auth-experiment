@@ -57,7 +57,7 @@ export const twoFactorAuthFormSchema = z.object({
 });
 
 export const qrCodeVerifyFormSchema = z.object({
-  token: z.string().length(6),
+  twoFactorCode: z.string().length(6),
 });
 
 export const backupCodeFormSchema = z.object({

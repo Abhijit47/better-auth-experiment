@@ -1,7 +1,7 @@
 'use client';
 
 import { Mails } from 'lucide-react';
-import { useTransition } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -9,40 +9,47 @@ import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/lib/auth/client/auth-client';
 
 export default function SetPasswordResetButton({ email }: { email: string }) {
-  const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   function handlePasswordRequest() {
-    startTransition(() => {
-      toast.promise(
-        authClient.requestPasswordReset({
-          email,
-          redirectTo: '/reset-password',
-        }),
-        {
-          description: 'Check your email for the password reset link.',
-          descriptionClassName: 'text-[10px]',
-          loading: 'Sending password reset email...',
-          // eslint-disable-next-line
-          success: (data) => {
-            return (
-              <span>
-                Password reset email sent to <strong>{email}</strong>
-              </span>
+    setIsLoading(true);
+    toast.promise(
+      authClient.requestPasswordReset({
+        email,
+        redirectTo: '/reset-password',
+        fetchOptions: {
+          onError: (error) => {
+            throw new Error(
+              error.error.message || 'Failed to send reset email'
             );
           },
-          error: 'Failed to send password reset email.',
-        }
-      );
-    });
+        },
+      }),
+      {
+        description: 'Check your email for the password reset link.',
+        descriptionClassName: 'text-[10px]',
+        loading: 'Sending password reset email...',
+        // eslint-disable-next-line
+        success: (data) => {
+          return (
+            <span>
+              Password reset email sent to <strong>{email}</strong>
+            </span>
+          );
+        },
+        error: (err: Error) => err?.message || 'Failed to send reset email',
+        finally: () => setIsLoading(false),
+      }
+    );
   }
 
   return (
     <Button
       className={'w-full'}
       variant='outline'
-      disabled={isPending}
+      disabled={isLoading}
       onClick={handlePasswordRequest}>
-      {isPending ? (
+      {isLoading ? (
         <span className={'inline-flex items-center gap-2 animate-pulse'}>
           Sending... <Spinner />
         </span>

@@ -68,6 +68,7 @@ export default function SignWithUsernameForm(props: SignWithUsernameProps) {
         // callbackURL: '/',
         fetchOptions: {
           onError(ctx) {
+            console.log('Error signing in:', ctx.error);
             form.setError('username', {
               type: 'value',
               message: ctx.error.message || 'Failed to sign in with username',

@@ -101,7 +101,7 @@ export const LazyQRCodeVerifyForm = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div>
+      <div className={'flex items-center justify-center'}>
         <Spinner />
       </div>
     ),
