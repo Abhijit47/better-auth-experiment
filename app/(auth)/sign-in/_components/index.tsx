@@ -56,3 +56,14 @@ export const LazySignWithSocial = dynamic(() => import('./sign-with-social'), {
     </div>
   ),
 });
+export const LazySignWithPasskeys = dynamic(
+  () => import('./sign-with-passkeys'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className='px-6 w-full'>
+        <Skeleton className='h-8 w-full rounded-md animate-pulse' />
+      </div>
+    ),
+  }
+);

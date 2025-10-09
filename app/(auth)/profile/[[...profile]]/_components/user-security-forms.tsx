@@ -1,3 +1,5 @@
+import { type Passkey } from 'better-auth/plugins/passkey';
+
 import { Badge } from '@/components/ui/badge';
 import {
   Card,
@@ -11,20 +13,23 @@ import {
   LazySetPasswordResetButton,
   LazyTwoFactorAuthForm,
 } from '.';
+import UserPasskeys from './user-passkeys';
+// import UserPasskeys from './passkey-form';
 
 interface UserSecurityFormsProps {
   hasPasswordAccount: boolean;
   isTwoFactorEnabled: boolean;
   email: string;
+  passkeys: Passkey[];
 }
 
 export default function UserSecurityForms(props: UserSecurityFormsProps) {
-  const { hasPasswordAccount, isTwoFactorEnabled, email } = props;
+  const { hasPasswordAccount, isTwoFactorEnabled, email, passkeys } = props;
 
   return (
     <div className='space-y-6'>
       {hasPasswordAccount ? (
-        <Card>
+        <Card className='py-4 gap-4'>
           <CardHeader>
             <CardTitle>Change Password</CardTitle>
             <CardDescription>
@@ -36,7 +41,7 @@ export default function UserSecurityForms(props: UserSecurityFormsProps) {
           </CardContent>
         </Card>
       ) : (
-        <Card>
+        <Card className='py-4 gap-4'>
           <CardHeader>
             <CardTitle>Set Password</CardTitle>
             <CardDescription>
@@ -50,7 +55,7 @@ export default function UserSecurityForms(props: UserSecurityFormsProps) {
       )}
 
       {hasPasswordAccount && (
-        <Card>
+        <Card className='py-4 gap-4'>
           <CardHeader className='flex items-center justify-between gap-2'>
             <CardTitle>Two-Factor Authentication</CardTitle>
             <Badge variant={isTwoFactorEnabled ? 'default' : 'secondary'}>
@@ -63,13 +68,12 @@ export default function UserSecurityForms(props: UserSecurityFormsProps) {
         </Card>
       )}
 
-      <Card>
+      <Card className={'py-4 gap-4'}>
         <CardHeader>
           <CardTitle>Passkeys</CardTitle>
         </CardHeader>
         <CardContent>
-          Passkey management coming soon...
-          {/* <PasskeyManagement passkeys={passkeys} /> */}
+          <UserPasskeys passkeys={passkeys} />
         </CardContent>
       </Card>
     </div>

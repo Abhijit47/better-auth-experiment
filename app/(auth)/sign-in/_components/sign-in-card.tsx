@@ -19,6 +19,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   LazySignWithEmailForm,
+  LazySignWithPasskeys,
   LazySignWithSocial,
   LazySignWithUsernameForm,
 } from '.';
@@ -50,6 +51,9 @@ export function SignInCard() {
       <Separator />
 
       <LazySignWithSocial isLoading={isLoading} onLoading={setIsLoading} />
+
+      <Separator />
+      <LazySignWithPasskeys isLoading={isLoading} onLoading={setIsLoading} />
 
       <Separator />
 

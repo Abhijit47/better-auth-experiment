@@ -1,6 +1,7 @@
 import { type BetterAuthPlugin } from 'better-auth';
 import { nextCookies } from 'better-auth/next-js';
 import { haveIBeenPwned, twoFactor, username } from 'better-auth/plugins';
+import { passkey } from 'better-auth/plugins/passkey';
 
 const pluginsConfigs = [
   haveIBeenPwned({
@@ -59,6 +60,25 @@ const pluginsConfigs = [
     validationOrder: {
       username: 'post-normalization',
       displayUsername: 'post-normalization',
+    },
+  }),
+  passkey({
+    rpID: 'localhost',
+    rpName: 'BetterAuth Demo',
+    origin: 'http://localhost:3000',
+    // authenticatorSelection: {
+    //   authenticatorAttachment: 'platform', // default is unset
+    //   residentKey: 'preferred', // default is "preferred"
+    //   userVerification: 'preferred', // default is "preferred"
+    // },
+    // advanced: {
+    //   webAuthnChallengeCookie:"webauthn_challenge",
+    // },
+    schema: {
+      passkey: {
+        modelName: 'passkeys',
+        // fields: {},
+      },
     },
   }),
   nextCookies(),

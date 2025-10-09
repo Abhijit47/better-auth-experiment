@@ -1,10 +1,11 @@
 import { getUserAccounts } from '@/lib/auth/get-user-accounts';
+import { getUserPasskeys } from '@/lib/auth/get-user-passkeys';
 import { requireAuth } from '@/lib/auth/require-auth';
 
 export default async function SecurityTab() {
-  const [{ user }, accounts] = await Promise.all([
+  const [{ user }, passkeys, accounts] = await Promise.all([
     requireAuth(),
-    // auth.api.listPasskeys({ headers: await headers() }),
+    getUserPasskeys(),
     getUserAccounts(),
   ]);
 
@@ -22,6 +23,7 @@ export default async function SecurityTab() {
       hasPasswordAccount={hasPasswordAccount}
       isTwoFactorEnabled={isTwoFactorEnabled}
       email={email}
+      passkeys={passkeys}
     />
   );
 }

@@ -136,6 +136,7 @@ export default function SignWithEmailForm(props: SignWithEmailProps) {
                   <Input
                     disabled={isLoading}
                     type='email'
+                    autoComplete='email webauthn'
                     placeholder='someone@example.com'
                     {...field}
                   />
@@ -163,6 +164,7 @@ export default function SignWithEmailForm(props: SignWithEmailProps) {
                     disabled={isLoading}
                     type='password'
                     placeholder='*******'
+                    autoComplete='current-password webauthn'
                     {...field}
                   />
                 </FormControl>

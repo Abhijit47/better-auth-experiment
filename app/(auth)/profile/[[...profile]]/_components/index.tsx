@@ -119,3 +119,24 @@ export const LazyUserAccountDeletion = dynamic(
     ),
   }
 );
+
+export const LazyPasskeyForm = dynamic(() => import('./passkey-form'), {
+  ssr: false,
+  loading: () => (
+    <div>
+      <Skeleton className={'h-9 w-full animate-pulse'} />
+    </div>
+  ),
+});
+
+export const LazyPasskeyDeleteButton = dynamic(
+  () => import('./passkey-delete-button'),
+  {
+    ssr: false,
+    loading: () => (
+      <div>
+        <Skeleton className={'h-5 w-5 animate-pulse'} />
+      </div>
+    ),
+  }
+);

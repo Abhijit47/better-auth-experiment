@@ -80,11 +80,28 @@ export const two_factors = pgTable('two_factors', {
     .references(() => users.id, { onDelete: 'cascade' }),
 });
 
+export const passkeys = pgTable('passkeys', {
+  id: text('id').primaryKey(),
+  name: text('name'),
+  publicKey: text('public_key').notNull(),
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  credentialID: text('credential_id').notNull(),
+  counter: integer('counter').notNull(),
+  deviceType: text('device_type').notNull(),
+  backedUp: boolean('backed_up').notNull(),
+  transports: text('transports'),
+  createdAt: timestamp('created_at'),
+  aaguid: text('aaguid'),
+});
+
 export const userRelations = relations(users, ({ many }) => ({
   accounts: many(accounts, { relationName: 'UserToAccount' }),
   sessions: many(sessions, { relationName: 'UserToSession' }),
   verifications: many(verifications, { relationName: 'UserToVerification' }),
   twoFactors: many(two_factors, { relationName: 'UserToTwoFactor' }),
+  passkeys: many(passkeys, { relationName: 'UserToPasskey' }),
 }));
 
 export const accountRelations = relations(accounts, ({ one }) => ({
@@ -115,6 +132,14 @@ export const twoFactorRelations = relations(two_factors, ({ one }) => ({
   user: one(users, {
     relationName: 'UserToTwoFactor',
     fields: [two_factors.userId],
+    references: [users.id],
+  }),
+}));
+
+export const passkeyRelations = relations(passkeys, ({ one }) => ({
+  user: one(users, {
+    relationName: 'UserToPasskey',
+    fields: [passkeys.userId],
     references: [users.id],
   }),
 }));

@@ -5,8 +5,6 @@ export const signUpFormSchema = z.object({
   email: z.email(),
   password: z.string().min(8).max(128),
   confirmPassword: z.string().min(8).max(128),
-  // username: z.string().min(5).max(50),
-  // displayUsername: z.string().min(5).max(50).optional(),
 });
 
 export const signUpCompleteSchema = z.object({
@@ -70,6 +68,10 @@ export const totpFormSchema = z.object({
   trustDevice: z.boolean(),
 });
 
+export const passkeyFormSchema = z.object({
+  name: z.string().min(1),
+});
+
 export type SignUpFormValues = z.infer<typeof signUpFormSchema>;
 export type SignUpCompleteFormValues = z.infer<typeof signUpCompleteSchema>;
 export type SignInWithEmailFormValues = z.infer<typeof signInWithEmailSchema>;
@@ -85,3 +87,4 @@ export type TwoFactorAuthFormValues = z.infer<typeof twoFactorAuthFormSchema>;
 export type QrCodeVerifyFormValues = z.infer<typeof qrCodeVerifyFormSchema>;
 export type BackupCodeFormValues = z.infer<typeof backupCodeFormSchema>;
 export type TotpFormValues = z.infer<typeof totpFormSchema>;
+export type PasskeyFormValues = z.infer<typeof passkeyFormSchema>;

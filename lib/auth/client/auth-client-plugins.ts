@@ -1,6 +1,7 @@
 import { type BetterAuthClientPlugin } from 'better-auth';
 import {
   inferAdditionalFields,
+  passkeyClient,
   twoFactorClient,
   usernameClient,
 } from 'better-auth/client/plugins';
@@ -15,6 +16,7 @@ const clientPlugins = [
       window.location.href = '/two-factor';
     },
   }),
+  passkeyClient(),
 ] satisfies BetterAuthClientPlugin[];
 
 export default clientPlugins;
