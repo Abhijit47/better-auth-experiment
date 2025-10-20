@@ -8,8 +8,29 @@ import {
 } from 'better-auth/plugins';
 import { passkey } from 'better-auth/plugins/passkey';
 
+import {
+  ac,
+  adminPermission,
+  myCustomRolePermission,
+  userPermission,
+} from '../../permissions';
+
 const pluginsConfigs = [
-  admin(),
+  admin({
+    // adminRoles:["admin"],
+    // defaultRole: 'regular',
+    // adminUserIds: ['user_id_1', 'user_id_2'],
+    // impersonationSessionDuration: 60 * 60 * 24, // 1 day
+    // defaultBanReason: 'Spamming',
+    // defaultBanExpiresIn: 60 * 60 * 24, // 1 day
+    // bannedUserMessage: 'Custom banned user message',
+    ac,
+    roles: {
+      admin: adminPermission,
+      user: userPermission,
+      myCustomRole: myCustomRolePermission,
+    },
+  }),
   haveIBeenPwned({
     customPasswordCompromisedMessage: 'Please choose a more secure password.',
   }),

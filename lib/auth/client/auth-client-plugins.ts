@@ -9,8 +9,22 @@ import {
 
 import { auth } from '../server';
 
+import {
+  ac,
+  adminPermission,
+  myCustomRolePermission,
+  userPermission,
+} from '../permissions';
+
 const clientPlugins = [
-  adminClient(),
+  adminClient({
+    ac,
+    roles: {
+      admin: adminPermission,
+      user: userPermission,
+      myCustomRole: myCustomRolePermission,
+    },
+  }),
   inferAdditionalFields<typeof auth>(),
   usernameClient(),
   twoFactorClient({
