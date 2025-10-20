@@ -20,7 +20,10 @@
     "better-auth:migrate": "npx @better-auth/cli@latest migrate ./lib/auth/server/index.ts --output ./drizzle/new-auth-schema.ts --yes",
     "better-auth:info": "npx @better-auth/cli@latest info --config ./lib/auth/server/index.ts --json",
     "better-auth:secret": "npx @better-auth/cli@latest info --json > ./lib/auth/server/auth-info.json",
-    "email:dev": "email dev",
+    "email:dev": "email dev --port 3020",
+    "email:built": "npm run email:dev",
+    "email:start": "email dev --port 3020",
+    "email:export": "npm run email:dev && --outDir ./emails/out --pretty",
     "dev:all": "mprocs"
   },
   "dependencies": {
