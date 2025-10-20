@@ -2,10 +2,14 @@ import { relations } from 'drizzle-orm';
 import {
   boolean,
   integer,
+  pgEnum,
   pgTable,
   text,
   timestamp,
 } from 'drizzle-orm/pg-core';
+
+// --- ENUMS
+export const UserRole = pgEnum('role', ['USER', 'ADMIN', 'MODERATOR']);
 
 export const users = pgTable('users', {
   id: text('id').primaryKey(),
@@ -18,6 +22,10 @@ export const users = pgTable('users', {
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
+  role: UserRole('role').default('USER').notNull(),
+  banned: boolean('banned').default(false),
+  banReason: text('ban_reason'),
+  banExpires: timestamp('ban_expires'),
   twoFactorEnabled: boolean('two_factor_enabled').default(false),
   username: text('username').unique(),
   displayUsername: text('display_username'),
@@ -37,6 +45,7 @@ export const sessions = pgTable('sessions', {
   userId: text('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
+  impersonatedBy: text('impersonated_by'),
 });
 
 export const accounts = pgTable('accounts', {
@@ -143,3 +152,26 @@ export const passkeyRelations = relations(passkeys, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+// --- TYPES
+export type SelectUser = typeof users.$inferSelect;
+export type InsertUser = typeof users.$inferInsert;
+
+export type SelectSession = typeof sessions.$inferSelect;
+export type InsertSession = typeof sessions.$inferInsert;
+
+export type SelectAccount = typeof accounts.$inferSelect;
+export type InsertAccount = typeof accounts.$inferInsert;
+
+export type SelectVerification = typeof verifications.$inferSelect;
+export type InsertVerification = typeof verifications.$inferInsert;
+
+export type SelectTwoFactor = typeof two_factors.$inferSelect;
+export type InsertTwoFactor = typeof two_factors.$inferInsert;
+
+export type SelectPasskey = typeof passkeys.$inferSelect;
+export type InsertPasskey = typeof passkeys.$inferInsert;
+
+// --- Union Types
+export const userRole = UserRole.enumValues;
+export type UserRolesUnion = (typeof UserRole)['enumValues'][number];

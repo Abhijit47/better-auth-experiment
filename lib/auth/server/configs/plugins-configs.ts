@@ -1,9 +1,15 @@
 import { type BetterAuthPlugin } from 'better-auth';
 import { nextCookies } from 'better-auth/next-js';
-import { haveIBeenPwned, twoFactor, username } from 'better-auth/plugins';
+import {
+  admin,
+  haveIBeenPwned,
+  twoFactor,
+  username,
+} from 'better-auth/plugins';
 import { passkey } from 'better-auth/plugins/passkey';
 
 const pluginsConfigs = [
+  admin(),
   haveIBeenPwned({
     customPasswordCompromisedMessage: 'Please choose a more secure password.',
   }),

@@ -1,5 +1,6 @@
 import { type BetterAuthClientPlugin } from 'better-auth';
 import {
+  adminClient,
   inferAdditionalFields,
   passkeyClient,
   twoFactorClient,
@@ -9,6 +10,7 @@ import {
 import { auth } from '../server';
 
 const clientPlugins = [
+  adminClient(),
   inferAdditionalFields<typeof auth>(),
   usernameClient(),
   twoFactorClient({
