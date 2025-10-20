@@ -20,7 +20,8 @@
     "better-auth:migrate": "npx @better-auth/cli@latest migrate ./lib/auth/server/index.ts --output ./drizzle/new-auth-schema.ts --yes",
     "better-auth:info": "npx @better-auth/cli@latest info --config ./lib/auth/server/index.ts --json",
     "better-auth:secret": "npx @better-auth/cli@latest info --json > ./lib/auth/server/auth-info.json",
-    "email:dev": "email dev"
+    "email:dev": "email dev",
+    "dev:all": "mprocs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -92,6 +93,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "mailhog": "^4.16.0",
+    "mprocs": "^0.7.3",
     "react-email": "4.2.12",
     "tailwindcss": "^4",
     "tsx": "^4.20.6",
